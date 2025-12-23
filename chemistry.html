@@ -1,0 +1,5123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Explorer - Periodic Table</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-dark: #0a0e17;
+            --secondary-dark: #121828;
+            --accent-purple: #7b2cbf;
+            --accent-blue: #4361ee;
+            --accent-cyan: #06d6a0;
+            --text-light: #e2e8f0;
+            --text-dim: #94a3b8;
+            --border-color: #2d3748;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(123, 44, 191, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(67, 97, 238, 0.1) 0%, transparent 20%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--accent-cyan);
+            filter: drop-shadow(0 0 10px rgba(6, 214, 160, 0.5));
+        }
+
+        .logo-text h1 {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .logo-text p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            flex: 2;
+        }
+
+        /* Language Toggle */
+        .language-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--secondary-dark);
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .language-toggle:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .language-flag {
+            font-size: 1.2rem;
+        }
+
+        /* Search Bar Styles */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            min-width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 50px;
+            background-color: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 1.2rem;
+        }
+
+        /* Search Suggestions */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestion-item:hover {
+            background-color: rgba(123, 44, 191, 0.1);
+        }
+
+        .suggestion-symbol {
+            font-weight: bold;
+            color: var(--accent-cyan);
+            min-width: 40px;
+        }
+
+        .search-btn, .table-btn {
+            padding: 14px 25px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover, .table-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(123, 44, 191, 0.3);
+        }
+
+        .search-btn:active, .table-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .intro-text {
+            max-width: 800px;
+            margin-bottom: 50px;
+        }
+
+        .intro-text h2 {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .intro-text p {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .feature-cards {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: var(--secondary-dark);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 350px;
+            min-width: 280px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-purple);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--accent-cyan);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* Element Page Styles */
+        .element-page {
+            display: none;
+            padding: 30px 0;
+        }
+
+        .back-btn {
+            background-color: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+            width: fit-content;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .element-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .element-basic-info {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .element-symbol-large {
+            font-size: clamp(3rem, 10vw, 5rem);
+            font-weight: 800;
+            color: var(--accent-cyan);
+            width: clamp(80px, 20vw, 120px);
+            height: clamp(80px, 20vw, 120px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(6, 214, 160, 0.1);
+            border-radius: 20px;
+            border: 2px solid var(--accent-cyan);
+            flex-shrink: 0;
+        }
+
+        .element-name-number h2 {
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .element-name-number p {
+            color: var(--text-dim);
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+
+        .element-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .option-toggle {
+            background-color: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            padding: 8px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .option-toggle.active {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .option-toggle:hover:not(.active) {
+            border-color: var(--accent-cyan);
+        }
+
+        .element-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        @media (max-width: 992px) {
+            .element-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Electron Diagram Styles */
+        .electron-diagram-container {
+            background-color: var(--secondary-dark);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .electron-diagram-container h3 {
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 25px;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .electron-diagram {
+            position: relative;
+            height: clamp(300px, 40vw, 500px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .nucleus {
+            position: absolute;
+            width: clamp(60px, 15vw, 80px);
+            height: clamp(60px, 15vw, 80px);
+            background-color: var(--accent-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: bold;
+            color: white;
+            z-index: 10;
+            box-shadow: 0 0 30px rgba(123, 44, 191, 0.7);
+        }
+
+        .orbit {
+            position: absolute;
+            border: 1px solid rgba(67, 97, 238, 0.5);
+            border-radius: 50%;
+        }
+
+        .electron {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-cyan);
+            z-index: 5;
+        }
+
+        /* Element Information Styles */
+        .element-info-container {
+            background-color: var(--secondary-dark);
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        .element-info-container h3 {
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 25px;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 20px;
+        }
+
+        .info-item .label {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-item .value {
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .oxidation-states, .electron-config {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow-x: auto;
+        }
+
+        .oxidation-state {
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: var(--accent-blue);
+            color: white;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Periodic Table Styles */
+        .periodic-table-page {
+            display: none;
+            padding: 30px 0;
+        }
+
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: var(--secondary-dark);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+        }
+
+        .zoom-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .zoom-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .zoom-level {
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .table-container {
+            overflow: auto;
+            background-color: var(--secondary-dark);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            grid-gap: 4px;
+            min-width: 800px;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+            width: max-content;
+            margin: 0 auto;
+        }
+
+        .element-cell {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .element-cell:hover {
+            transform: scale(1.1);
+            z-index: 100;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .atomic-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .element-symbol {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            font-weight: 800;
+            margin-bottom: 2px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .element-name {
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            line-height: 1.1;
+            word-break: break-word;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .atomic-mass {
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* Standard Periodic Table Colors - More realistic */
+        .alkali-metal { background: linear-gradient(135deg, #ff6b6b, #ff9999); }
+        .alkaline-earth { background: linear-gradient(135deg, #ffd166, #ffeaa7); color: #333; }
+        .transition-metal { background: linear-gradient(135deg, #06d6a0, #4ecdc4); }
+        .basic-metal { background: linear-gradient(135deg, #118ab2, #1d96c9); }
+        .metalloid { background: linear-gradient(135deg, #073b4c, #15616d); }
+        .nonmetal { background: linear-gradient(135deg, #7209b7, #9d4edd); }
+        .halogen { background: linear-gradient(135deg, #f15bb5, #f89bdd); }
+        .noble-gas { background: linear-gradient(135deg, #8338ec, #a663cc); }
+        .lanthanide { background: linear-gradient(135deg, #fb5607, #ff7b25); }
+        .actinide { background: linear-gradient(135deg, #ff006e, #ff477e); }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        /* Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .logo {
+                min-width: auto;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .controls {
+                justify-content: center;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                max-width: 100%;
+                min-width: auto;
+            }
+            
+            .search-btn, .table-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .language-toggle {
+                justify-content: center;
+                margin-top: 10px;
+            }
+            
+            .intro-text {
+                padding: 0 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .element-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .element-basic-info {
+                gap: 20px;
+            }
+            
+            .element-options {
+                justify-content: center;
+            }
+            
+            .electron-diagram-container,
+            .element-info-container {
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-controls {
+                justify-content: center;
+            }
+            
+            .periodic-table {
+                min-width: 600px;
+                grid-gap: 3px;
+            }
+            
+            .element-cell {
+                padding: 2px;
+                border-radius: 4px;
+            }
+            
+            .element-symbol {
+                font-size: 0.8rem;
+            }
+            
+            .element-name {
+                font-size: 0.4rem;
+            }
+            
+            .atomic-mass {
+                font-size: 0.4rem;
+            }
+            
+            .legend {
+                gap: 10px;
+            }
+            
+            .legend-item {
+                flex: 0 0 calc(50% - 10px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .periodic-table {
+                min-width: 500px;
+            }
+            
+            .element-symbol {
+                font-size: 0.7rem;
+            }
+            
+            .element-name {
+                display: none;
+            }
+            
+            .legend-item {
+                flex: 0 0 100%;
+            }
+            
+            .feature-cards {
+                gap: 20px;
+            }
+            
+            .card {
+                min-width: auto;
+            }
+        }
+
+        /* Tablet-specific optimizations */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .periodic-table {
+                min-width: 700px;
+            }
+            
+            .element-cell {
+                padding: 3px;
+            }
+            
+            .element-symbol {
+                font-size: 1rem;
+            }
+            
+            .element-name {
+                font-size: 0.5rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .element-cell:hover {
+                transform: none;
+            }
+            
+            .search-btn:hover, .table-btn:hover {
+                transform: none;
+                box-shadow: none;
+            }
+            
+            .card:hover {
+                transform: none;
+            }
+            
+            .option-toggle, .language-toggle {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-atom"></i>
+                </div>
+                <div class="logo-text">
+                    <h1 id="siteTitle">Chemistry Explorer</h1>
+                    <p id="siteSubtitle">Interactive Periodic Table & Element Database</p>
+                </div>
+            </div>
+            <div class="controls">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search element (name, symbol, or atomic number)...">
+                    <div class="search-suggestions" id="searchSuggestions"></div>
+                </div>
+                <div style="display: flex; gap: 10px; width: 100%;">
+                    <button class="search-btn" id="searchBtn">
+                        <i class="fas fa-search"></i> <span id="searchBtnText">Search</span>
+                    </button>
+                    <button class="table-btn" id="tableBtn">
+                        <i class="fas fa-table"></i> <span id="tableBtnText">Periodic Table</span>
+                    </button>
+                </div>
+                <div class="language-toggle" id="languageToggle">
+                    <span class="language-flag" id="languageFlag">🇺🇸</span>
+                    <span id="languageText">EN</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Main Landing Page -->
+            <div class="main-content" id="mainPage">
+                <div class="intro-text">
+                    <h2 id="mainTitle">Explore the Building Blocks of Matter</h2>
+                    <p id="mainDescription">Discover detailed information about all 118 chemical elements, visualize electron configurations, and interact with a fully-featured periodic table. All data is sourced from reliable scientific databases.</p>
+                </div>
+                <div class="feature-cards">
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3 id="feature1Title">Element Search</h3>
+                        <p id="feature1Desc">Search for any element by name, symbol, or atomic number to view detailed information including electron configuration diagrams.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <h3 id="feature2Title">Interactive Table</h3>
+                        <p id="feature2Desc">Explore the complete periodic table with zoom functionality and high-resolution download for printing or study.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <h3 id="feature3Title">Electron Visualizations</h3>
+                        <p id="feature3Desc">See animated electron configurations with orbitals and electrons for each element to better understand atomic structure.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Element Detail Page -->
+            <div class="element-page" id="elementPage">
+                <button class="back-btn" id="backFromElement">
+                    <i class="fas fa-arrow-left"></i> <span id="backToSearchText">Back to Search</span>
+                </button>
+                
+                <div class="element-header">
+                    <div class="element-basic-info">
+                        <div class="element-symbol-large" id="elementSymbolLarge">H</div>
+                        <div class="element-name-number">
+                            <h2 id="elementName">Hydrogen</h2>
+                            <p id="atomicNumberText">Atomic Number: <span id="elementAtomicNumber">1</span></p>
+                            <div class="element-options">
+                                <button class="option-toggle" id="roundMassToggle">
+                                    <i class="fas fa-ruler"></i> <span id="roundMassText">Round Mass</span>
+                                </button>
+                                <button class="option-toggle" id="completeConfigToggle">
+                                    <i class="fas fa-atom"></i> <span id="completeConfigText">Complete Config</span>
+                                </button>
+                                <button class="option-toggle" id="animationToggle">
+                                    <i class="fas fa-play" id="animationIcon"></i> <span id="animationText">Pause</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="element-category" id="elementCategory">
+                        <span class="category-label">Nonmetal</span>
+                    </div>
+                </div>
+                
+                <div class="element-details">
+                    <div class="electron-diagram-container">
+                        <h3><i class="fas fa-atom"></i> <span id="electronDiagramTitle">Electron Configuration Diagram</span></h3>
+                        <div class="electron-diagram" id="electronDiagram">
+                            <!-- Electron diagram will be generated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="element-info-container">
+                        <h3><i class="fas fa-info-circle"></i> <span id="elementInfoTitle">Element Information</span></h3>
+                        <div class="info-grid" id="elementInfoGrid">
+                            <!-- Element information will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Periodic Table Page -->
+            <div class="periodic-table-page" id="periodicTablePage">
+                <button class="back-btn" id="backFromTable">
+                    <i class="fas fa-arrow-left"></i> <span id="backToMainText">Back to Main</span>
+                </button>
+                
+                <div class="table-controls">
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" id="zoomOut">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                        <button class="zoom-btn" id="zoomIn">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="periodic-table" id="periodicTable">
+                        <!-- Periodic table will be generated here -->
+                    </div>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color alkali-metal"></div>
+                        <span class="legend-label" id="legend1">Alkali Metal</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color alkaline-earth"></div>
+                        <span class="legend-label" id="legend2">Alkaline Earth</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color transition-metal"></div>
+                        <span class="legend-label" id="legend3">Transition Metal</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color basic-metal"></div>
+                        <span class="legend-label" id="legend4">Basic Metal</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color metalloid"></div>
+                        <span class="legend-label" id="legend5">Metalloid</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color nonmetal"></div>
+                        <span class="legend-label" id="legend6">Nonmetal</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color halogen"></div>
+                        <span class="legend-label" id="legend7">Halogen</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color noble-gas"></div>
+                        <span class="legend-label" id="legend8">Noble Gas</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color lanthanide"></div>
+                        <span class="legend-label" id="legend9">Lanthanide</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color actinide"></div>
+                        <span class="legend-label" id="legend10">Actinide</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p id="footerText">Chemistry Explorer &copy; 2025 | All element data sourced from scientific databases | For educational purposes</p>
+        </footer>
+    </div>
+
+    <script>
+        // Element Database - Comprehensive data for all 118 elements
+        const elementsDatabase = [
+            {
+                atomicNumber: 1,
+                symbol: 'H',
+                name: 'Hydrogen',
+                nameBangla: 'হাইড্রোজেন',
+                atomicMass: '1.008',
+                group: 1,
+                period: 1,
+                category: 'nonmetal',
+                electronConfiguration: '1s1',
+                electronConfigurationComplete: '1s1',
+                electronsPerShell: [1],
+                oxidationStates: [-1, 1],
+                electronNegativity: 2.20,
+                atomicRadius: 53,
+                discovery: 'Henry Cavendish',
+                discoveryBangla: 'হেনরি ক্যাভেন্ডিশ',
+                yearDiscovered: 1766,
+                density: 0.0899,
+                meltingPoint: 14.01,
+                boilingPoint: 20.28,
+                phase: 'Gas',
+                phaseBangla: 'গ্যাস',
+                bondingType: 'Covalent',
+                bondingTypeBangla: 'সমযোজী',
+                uses: 'Fuel, ammonia production, hydrogenation of fats',
+                usesBangla: 'জ্বালানি, অ্যামোনিয়া উৎপাদন, চর্বি হাইড্রোজেনকরণ'
+            },
+            {
+                atomicNumber: 2,
+                symbol: 'He',
+                name: 'Helium',
+                nameBangla: 'হিলিয়াম',
+                atomicMass: '4.0026',
+                group: 18,
+                period: 1,
+                category: 'noble-gas',
+                electronConfiguration: '1s2',
+                electronConfigurationComplete: '1s2',
+                electronsPerShell: [2],
+                oxidationStates: [0],
+                electronNegativity: null,
+                atomicRadius: 31,
+                discovery: 'Pierre Janssen, Norman Lockyer',
+                discoveryBangla: 'পিয়েরে জানসেন, নরম্যান লকিয়ার',
+                yearDiscovered: 1868,
+                density: 0.1785,
+                meltingPoint: 0.95,
+                boilingPoint: 4.22,
+                phase: 'Gas',
+                phaseBangla: 'গ্যাস',
+                bondingType: 'Atomic',
+                bondingTypeBangla: 'আণবিক',
+                uses: 'Cryogenics, breathing mixes, balloons',
+                usesBangla: 'ক্রায়োজেনিক্স, শ্বাস নেওয়ার মিশ্রণ, বেলুন'
+            },
+            {
+                atomicNumber: 3,
+                symbol: 'Li',
+                name: 'Lithium',
+                nameBangla: 'লিথিয়াম',
+                atomicMass: '6.94',
+                group: 1,
+                period: 2,
+                category: 'alkali-metal',
+                electronConfiguration: '[He] 2s1',
+                electronConfigurationComplete: '1s2 2s1',
+                electronsPerShell: [2, 1],
+                oxidationStates: [1],
+                electronNegativity: 0.98,
+                atomicRadius: 167,
+                discovery: 'Johan August Arfwedson',
+                discoveryBangla: 'জোহান আগস্ট আরফেডসন',
+                yearDiscovered: 1817,
+                density: 0.534,
+                meltingPoint: 453.69,
+                boilingPoint: 1615,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Metallic',
+                bondingTypeBangla: 'ধাতব',
+                uses: 'Batteries, ceramics, lubricants',
+                usesBangla: 'ব্যাটারি, সিরামিক, লুব্রিকেন্ট'
+            },
+            {
+                atomicNumber: 4,
+                symbol: 'Be',
+                name: 'Beryllium',
+                nameBangla: 'বেরিলিয়াম',
+                atomicMass: '9.0122',
+                group: 2,
+                period: 2,
+                category: 'alkaline-earth',
+                electronConfiguration: '[He] 2s2',
+                electronConfigurationComplete: '1s2 2s2',
+                electronsPerShell: [2, 2],
+                oxidationStates: [2],
+                electronNegativity: 1.57,
+                atomicRadius: 112,
+                discovery: 'Louis Nicolas Vauquelin',
+                discoveryBangla: 'লুই নিকোলাস ভকেলিন',
+                yearDiscovered: 1798,
+                density: 1.85,
+                meltingPoint: 1560,
+                boilingPoint: 2742,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Metallic',
+                bondingTypeBangla: 'ধাতব',
+                uses: 'Aerospace, X-ray windows, alloys',
+                usesBangla: 'এরোস্পেস, এক্স-রে উইন্ডোজ, সংকর ধাতু'
+            },
+            {
+                atomicNumber: 5,
+                symbol: 'B',
+                name: 'Boron',
+                nameBangla: 'বোরন',
+                atomicMass: '10.81',
+                group: 13,
+                period: 2,
+                category: 'metalloid',
+                electronConfiguration: '[He] 2s2 2p1',
+                electronConfigurationComplete: '1s2 2s2 2p1',
+                electronsPerShell: [2, 3],
+                oxidationStates: [3],
+                electronNegativity: 2.04,
+                atomicRadius: 87,
+                discovery: 'Joseph Louis Gay-Lussac, Louis Jacques Thénard',
+                discoveryBangla: 'জোসেফ লুই গে-লুসাক, লুই জ্যাক থেনার্ড',
+                yearDiscovered: 1808,
+                density: 2.34,
+                meltingPoint: 2349,
+                boilingPoint: 4200,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Covalent',
+                bondingTypeBangla: 'সমযোজী',
+                uses: 'Fiberglass, detergents, semiconductors',
+                usesBangla: 'ফাইবারগ্লাস, ডিটারজেন্ট, সেমিকন্ডাক্টর'
+            },
+            {
+                atomicNumber: 6,
+                symbol: 'C',
+                name: 'Carbon',
+                nameBangla: 'কার্বন',
+                atomicMass: '12.011',
+                group: 14,
+                period: 2,
+                category: 'nonmetal',
+                electronConfiguration: '[He] 2s2 2p2',
+                electronConfigurationComplete: '1s2 2s2 2p2',
+                electronsPerShell: [2, 4],
+                oxidationStates: [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+                electronNegativity: 2.55,
+                atomicRadius: 67,
+                discovery: 'Ancient (known since prehistoric times)',
+                discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+                yearDiscovered: 'Ancient',
+                density: 2.267,
+                meltingPoint: 3915,
+                boilingPoint: 3915,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Covalent',
+                bondingTypeBangla: 'সমযোজী',
+                uses: 'Steel, fuels, plastics, life molecules',
+                usesBangla: 'স্টিল, জ্বালানি, প্লাস্টিক, জীবন অণু'
+            },
+            {
+                atomicNumber: 7,
+                symbol: 'N',
+                name: 'Nitrogen',
+                nameBangla: 'নাইট্রোজেন',
+                atomicMass: '14.007',
+                group: 15,
+                period: 2,
+                category: 'nonmetal',
+                electronConfiguration: '[He] 2s2 2p3',
+                electronConfigurationComplete: '1s2 2s2 2p3',
+                electronsPerShell: [2, 5],
+                oxidationStates: [-3, -2, -1, 1, 2, 3, 4, 5],
+                electronNegativity: 3.04,
+                atomicRadius: 56,
+                discovery: 'Daniel Rutherford',
+                discoveryBangla: 'ড্যানিয়েল রাদারফোর্ড',
+                yearDiscovered: 1772,
+                density: 1.251,
+                meltingPoint: 63.15,
+                boilingPoint: 77.36,
+                phase: 'Gas',
+                phaseBangla: 'গ্যাস',
+                bondingType: 'Covalent',
+                bondingTypeBangla: 'সমযোজী',
+                uses: 'Fertilizers, explosives, ammonia',
+                usesBangla: 'সার, বিস্ফোরক, অ্যামোনিয়া'
+            },
+            {
+                atomicNumber: 8,
+                symbol: 'O',
+                name: 'Oxygen',
+                nameBangla: 'অক্সিজেন',
+                atomicMass: '15.999',
+                group: 16,
+                period: 2,
+                category: 'nonmetal',
+                electronConfiguration: '[He] 2s2 2p4',
+                electronConfigurationComplete: '1s2 2s2 2p4',
+                electronsPerShell: [2, 6],
+                oxidationStates: [-2, -1, 1, 2],
+                electronNegativity: 3.44,
+                atomicRadius: 48,
+                discovery: 'Carl Wilhelm Scheele, Joseph Priestley',
+                discoveryBangla: 'কার্ল উইলহেল্ম শেলে, জোসেফ প্রিস্টলি',
+                yearDiscovered: 1774,
+                density: 1.429,
+                meltingPoint: 54.36,
+                boilingPoint: 90.20,
+                phase: 'Gas',
+                phaseBangla: 'গ্যাস',
+                bondingType: 'Covalent',
+                bondingTypeBangla: 'সমযোজী',
+                uses: 'Respiration, oxidation, water',
+                usesBangla: 'শ্বসন, জারণ, পানি'
+            },
+            {
+                atomicNumber: 9,
+                symbol: 'F',
+                name: 'Fluorine',
+                nameBangla: 'ফ্লুরিন',
+                atomicMass: '18.998',
+                group: 17,
+                period: 2,
+                category: 'halogen',
+                electronConfiguration: '[He] 2s2 2p5',
+                electronConfigurationComplete: '1s2 2s2 2p5',
+                electronsPerShell: [2, 7],
+                oxidationStates: [-1],
+                electronNegativity: 3.98,
+                atomicRadius: 42,
+                discovery: 'Henri Moissan',
+                discoveryBangla: 'অঁরি মোয়াঁসাঁ',
+                yearDiscovered: 1886,
+                density: 1.696,
+                meltingPoint: 53.53,
+                boilingPoint: 85.03,
+                phase: 'Gas',
+                phaseBangla: 'গ্যাস',
+                bondingType: 'Covalent',
+                bondingTypeBangla: 'সমযোজী',
+                uses: 'Toothpaste, Teflon, refrigerants',
+                usesBangla: 'টুথপেস্ট, টেফলন, রেফ্রিজারেন্ট'
+            },
+            {
+                atomicNumber: 10,
+                symbol: 'Ne',
+                name: 'Neon',
+                nameBangla: 'নিয়ন',
+                atomicMass: '20.180',
+                group: 18,
+                period: 2,
+                category: 'noble-gas',
+                electronConfiguration: '[He] 2s2 2p6',
+                electronConfigurationComplete: '1s2 2s2 2p6',
+                electronsPerShell: [2, 8],
+                oxidationStates: [0],
+                electronNegativity: null,
+                atomicRadius: 38,
+                discovery: 'William Ramsay, Morris Travers',
+                discoveryBangla: 'উইলিয়াম রামজে, মরিস ট্রাভার্স',
+                yearDiscovered: 1898,
+                density: 0.9002,
+                meltingPoint: 24.56,
+                boilingPoint: 27.07,
+                phase: 'Gas',
+                phaseBangla: 'গ্যাস',
+                bondingType: 'Atomic',
+                bondingTypeBangla: 'আণবিক',
+                uses: 'Lighting, cryogenics, lasers',
+                usesBangla: 'লাইটিং, ক্রায়োজেনিক্স, লেজার'
+            },
+            {
+        atomicNumber: 11,
+        symbol: 'Na',
+        name: 'Sodium',
+        nameBangla: 'সোডিয়াম',
+        atomicMass: '22.990',
+        group: 1,
+        period: 3,
+        category: 'alkali-metal',
+        electronConfiguration: '[Ne] 3s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s1',
+        electronsPerShell: [2, 8, 1],
+        oxidationStates: [1],
+        electronNegativity: 0.93,
+        atomicRadius: 190,
+        discovery: 'Humphry Davy',
+        discoveryBangla: 'হামফ্রে ডেভি',
+        yearDiscovered: 1807,
+        density: 0.97,
+        meltingPoint: 370.87,
+        boilingPoint: 1156,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Table salt, street lights, soap',
+        usesBangla: 'টেবিল লবণ, রাস্তার আলো, সাবান'
+    },{
+        atomicNumber: 12,
+        symbol: 'Mg',
+        name: 'Magnesium',
+        nameBangla: 'ম্যাগনেসিয়াম',
+        atomicMass: '24.305',
+        group: 2,
+        period: 3,
+        category: 'alkaline-earth',
+        electronConfiguration: '[Ne] 3s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2',
+        electronsPerShell: [2, 8, 2],
+        oxidationStates: [2],
+        electronNegativity: 1.31,
+        atomicRadius: 145,
+        discovery: 'Joseph Black',
+        discoveryBangla: 'জোসেফ ব্ল্যাক',
+        yearDiscovered: 1755,
+        density: 1.74,
+        meltingPoint: 923,
+        boilingPoint: 1363,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Alloys, fireworks, medicine',
+        usesBangla: 'সংকর ধাতু, আতশবাজি, ওষুধ'
+    },
+    {
+        atomicNumber: 13,
+        symbol: 'Al',
+        name: 'Aluminium',
+        nameBangla: 'অ্যালুমিনিয়াম',
+        atomicMass: '26.982',
+        group: 13,
+        period: 3,
+        category: 'basic-metal',
+        electronConfiguration: '[Ne] 3s2 3p1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p1',
+        electronsPerShell: [2, 8, 3],
+        oxidationStates: [3],
+        electronNegativity: 1.61,
+        atomicRadius: 118,
+        discovery: 'Hans Christian Ørsted',
+        discoveryBangla: 'হ্যান্স ক্রিশ্চিয়ান ওরস্টেড',
+        yearDiscovered: 1825,
+        density: 2.70,
+        meltingPoint: 933.47,
+        boilingPoint: 2792,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Aircraft, cans, foil',
+        usesBangla: 'বিমান, ক্যান, ফয়েল'
+    },
+    {
+        atomicNumber: 14,
+        symbol: 'Si',
+        name: 'Silicon',
+        nameBangla: 'সিলিকন',
+        atomicMass: '28.085',
+        group: 14,
+        period: 3,
+        category: 'metalloid',
+        electronConfiguration: '[Ne] 3s2 3p2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p2',
+        electronsPerShell: [2, 8, 4],
+        oxidationStates: [-4, -3, -2, -1, 1, 2, 3, 4],
+        electronNegativity: 1.90,
+        atomicRadius: 111,
+        discovery: 'Jöns Jacob Berzelius',
+        discoveryBangla: 'ইয়ন্স ইয়াকব বার্জেলিয়াস',
+        yearDiscovered: 1824,
+        density: 2.33,
+        meltingPoint: 1687,
+        boilingPoint: 3538,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Electronics, solar cells, glass',
+        usesBangla: 'ইলেকট্রনিক্স, সৌর কোষ, কাঁচ'
+    },
+    {
+        atomicNumber: 15,
+        symbol: 'P',
+        name: 'Phosphorus',
+        nameBangla: 'ফসফরাস',
+        atomicMass: '30.974',
+        group: 15,
+        period: 3,
+        category: 'nonmetal',
+        electronConfiguration: '[Ne] 3s2 3p3',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p3',
+        electronsPerShell: [2, 8, 5],
+        oxidationStates: [-3, -2, -1, 1, 2, 3, 4, 5],
+        electronNegativity: 2.19,
+        atomicRadius: 106,
+        discovery: 'Hennig Brand',
+        discoveryBangla: 'হেনিগ ব্র্যান্ড',
+        yearDiscovered: 1669,
+        density: 1.82,
+        meltingPoint: 317.3,
+        boilingPoint: 553.7,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Fertilizers, matches, detergents',
+        usesBangla: 'সার, দিয়াশলাই, ডিটারজেন্ট'
+    },
+    {
+        atomicNumber: 16,
+        symbol: 'S',
+        name: 'Sulfur',
+        nameBangla: 'সালফার',
+        atomicMass: '32.06',
+        group: 16,
+        period: 3,
+        category: 'nonmetal',
+        electronConfiguration: '[Ne] 3s2 3p4',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p4',
+        electronsPerShell: [2, 8, 6],
+        oxidationStates: [-2, -1, 1, 2, 3, 4, 5, 6],
+        electronNegativity: 2.58,
+        atomicRadius: 102,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 2.07,
+        meltingPoint: 388.36,
+        boilingPoint: 717.87,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Gunpowder, matches, insecticides',
+        usesBangla: 'বারুদ, দিয়াশলাই, কীটনাশক'
+    },
+    {
+        atomicNumber: 17,
+        symbol: 'Cl',
+        name: 'Chlorine',
+        nameBangla: 'ক্লোরিন',
+        atomicMass: '35.45',
+        group: 17,
+        period: 3,
+        category: 'halogen',
+        electronConfiguration: '[Ne] 3s2 3p5',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p5',
+        electronsPerShell: [2, 8, 7],
+        oxidationStates: [-1, 1, 2, 3, 4, 5, 6, 7],
+        electronNegativity: 3.16,
+        atomicRadius: 99,
+        discovery: 'Carl Wilhelm Scheele',
+        discoveryBangla: 'কার্ল উইলহেল্ম শেলে',
+        yearDiscovered: 1774,
+        density: 3.2,
+        meltingPoint: 171.6,
+        boilingPoint: 239.11,
+        phase: 'Gas',
+        phaseBangla: 'গ্যাস',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Water purification, bleach, PVC',
+        usesBangla: 'পানি বিশোধন, ব্লিচ, পিভিসি'
+    },
+    {
+        atomicNumber: 18,
+        symbol: 'Ar',
+        name: 'Argon',
+        nameBangla: 'আর্গন',
+        atomicMass: '39.95',
+        group: 18,
+        period: 3,
+        category: 'noble-gas',
+        electronConfiguration: '[Ne] 3s2 3p6',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6',
+        electronsPerShell: [2, 8, 8],
+        oxidationStates: [0],
+        electronNegativity: null,
+        atomicRadius: 71,
+        discovery: 'Lord Rayleigh, William Ramsay',
+        discoveryBangla: 'লর্ড রেলি, উইলিয়াম রামজে',
+        yearDiscovered: 1894,
+        density: 1.784,
+        meltingPoint: 83.80,
+        boilingPoint: 87.30,
+        phase: 'Gas',
+        phaseBangla: 'গ্যাস',
+        bondingType: 'Atomic',
+        bondingTypeBangla: 'আণবিক',
+        uses: 'Lighting, welding, preservation',
+        usesBangla: 'লাইটিং, ঢালাই, সংরক্ষণ'
+    },
+    {
+        atomicNumber: 19,
+        symbol: 'K',
+        name: 'Potassium',
+        nameBangla: 'পটাসিয়াম',
+        atomicMass: '39.098',
+        group: 1,
+        period: 4,
+        category: 'alkali-metal',
+        electronConfiguration: '[Ar] 4s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s1',
+        electronsPerShell: [2, 8, 8, 1],
+        oxidationStates: [1],
+        electronNegativity: 0.82,
+        atomicRadius: 243,
+        discovery: 'Humphry Davy',
+        discoveryBangla: 'হামফ্রে ডেভি',
+        yearDiscovered: 1807,
+        density: 0.86,
+        meltingPoint: 336.53,
+        boilingPoint: 1032,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Fertilizers, soap, gunpowder',
+        usesBangla: 'সার, সাবান, বারুদ'
+    },
+    {
+        atomicNumber: 20,
+        symbol: 'Ca',
+        name: 'Calcium',
+        nameBangla: 'ক্যালসিয়াম',
+        atomicMass: '40.078',
+        group: 2,
+        period: 4,
+        category: 'alkaline-earth',
+        electronConfiguration: '[Ar] 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2',
+        electronsPerShell: [2, 8, 8, 2],
+        oxidationStates: [2],
+        electronNegativity: 1.00,
+        atomicRadius: 194,
+        discovery: 'Humphry Davy',
+        discoveryBangla: 'হামফ্রে ডেভি',
+        yearDiscovered: 1808,
+        density: 1.55,
+        meltingPoint: 1115,
+        boilingPoint: 1757,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Bones, cement, plaster',
+        usesBangla: 'হাড়, সিমেন্ট, প্লাস্টার'
+    },
+    {
+        atomicNumber: 21,
+        symbol: 'Sc',
+        name: 'Scandium',
+        nameBangla: 'স্ক্যান্ডিয়াম',
+        atomicMass: '44.956',
+        group: 3,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d1 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d1',
+        electronsPerShell: [2, 8, 9, 2],
+        oxidationStates: [3],
+        electronNegativity: 1.36,
+        atomicRadius: 184,
+        discovery: 'Lars Fredrik Nilson',
+        discoveryBangla: 'লার্স ফ্রেডরিক নিলসন',
+        yearDiscovered: 1879,
+        density: 2.99,
+        meltingPoint: 1814,
+        boilingPoint: 3109,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Aerospace, sports equipment',
+        usesBangla: 'এরোস্পেস, ক্রীড়া সরঞ্জাম'
+    },
+    {
+        atomicNumber: 22,
+        symbol: 'Ti',
+        name: 'Titanium',
+        nameBangla: 'টাইটানিয়াম',
+        atomicMass: '47.867',
+        group: 4,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d2 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d2',
+        electronsPerShell: [2, 8, 10, 2],
+        oxidationStates: [-1, 2, 3, 4],
+        electronNegativity: 1.54,
+        atomicRadius: 176,
+        discovery: 'William Gregor',
+        discoveryBangla: 'উইলিয়াম গ্রেগর',
+        yearDiscovered: 1791,
+        density: 4.54,
+        meltingPoint: 1941,
+        boilingPoint: 3560,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Aircraft, implants, paints',
+        usesBangla: 'বিমান, ইমপ্লান্ট, রং'
+    },
+    {
+        atomicNumber: 23,
+        symbol: 'V',
+        name: 'Vanadium',
+        nameBangla: 'ভ্যানাডিয়াম',
+        atomicMass: '50.942',
+        group: 5,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d3 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d3',
+        electronsPerShell: [2, 8, 11, 2],
+        oxidationStates: [-1, 1, 2, 3, 4, 5],
+        electronNegativity: 1.63,
+        atomicRadius: 171,
+        discovery: 'Andrés Manuel del Río',
+        discoveryBangla: 'আন্দ্রেস ম্যানুয়েল দেল রিও',
+        yearDiscovered: 1801,
+        density: 6.11,
+        meltingPoint: 2183,
+        boilingPoint: 3680,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Steel alloys, catalysts',
+        usesBangla: 'স্টিল সংকর ধাতু, অনুঘটক'
+    },
+    {
+        atomicNumber: 24,
+        symbol: 'Cr',
+        name: 'Chromium',
+        nameBangla: 'ক্রোমিয়াম',
+        atomicMass: '51.996',
+        group: 6,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d5 4s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s1 3d5',
+        electronsPerShell: [2, 8, 13, 1],
+        oxidationStates: [-2, -1, 1, 2, 3, 4, 5, 6],
+        electronNegativity: 1.66,
+        atomicRadius: 166,
+        discovery: 'Louis Nicolas Vauquelin',
+        discoveryBangla: 'লুই নিকোলাস ভকেলিন',
+        yearDiscovered: 1797,
+        density: 7.15,
+        meltingPoint: 2180,
+        boilingPoint: 2944,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Stainless steel, plating, pigments',
+        usesBangla: 'স্টেইনলেস স্টিল, প্লেটিং, রঞ্জক'
+    },
+    {
+        atomicNumber: 25,
+        symbol: 'Mn',
+        name: 'Manganese',
+        nameBangla: 'ম্যাঙ্গানিজ',
+        atomicMass: '54.938',
+        group: 7,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d5 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d5',
+        electronsPerShell: [2, 8, 13, 2],
+        oxidationStates: [-3, -2, -1, 1, 2, 3, 4, 5, 6, 7],
+        electronNegativity: 1.55,
+        atomicRadius: 161,
+        discovery: 'Johan Gottlieb Gahn',
+        discoveryBangla: 'জোহান গটলিব গান',
+        yearDiscovered: 1774,
+        density: 7.21,
+        meltingPoint: 1519,
+        boilingPoint: 2334,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Steel production, batteries, pigments',
+        usesBangla: 'স্টিল উৎপাদন, ব্যাটারি, রঞ্জক'
+    },
+    {
+        atomicNumber: 26,
+        symbol: 'Fe',
+        name: 'Iron',
+        nameBangla: 'লোহা',
+        atomicMass: '55.845',
+        group: 8,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d6 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d6',
+        electronsPerShell: [2, 8, 14, 2],
+        oxidationStates: [-2, -1, 1, 2, 3, 4, 5, 6],
+        electronNegativity: 1.83,
+        atomicRadius: 156,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 7.87,
+        meltingPoint: 1811,
+        boilingPoint: 3134,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Steel, magnets, hemoglobin',
+        usesBangla: 'স্টিল, চুম্বক, হিমোগ্লোবিন'
+    },
+    {
+        atomicNumber: 27,
+        symbol: 'Co',
+        name: 'Cobalt',
+        nameBangla: 'কোবাল্ট',
+        atomicMass: '58.933',
+        group: 9,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d7 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d7',
+        electronsPerShell: [2, 8, 15, 2],
+        oxidationStates: [-1, 1, 2, 3, 4, 5],
+        electronNegativity: 1.88,
+        atomicRadius: 152,
+        discovery: 'Georg Brandt',
+        discoveryBangla: 'জর্জ ব্র্যান্ড্ট',
+        yearDiscovered: 1735,
+        density: 8.90,
+        meltingPoint: 1768,
+        boilingPoint: 3200,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Magnets, batteries, pigments',
+        usesBangla: 'চুম্বক, ব্যাটারি, রঞ্জক'
+    },
+    {
+        atomicNumber: 28,
+        symbol: 'Ni',
+        name: 'Nickel',
+        nameBangla: 'নিকেল',
+        atomicMass: '58.693',
+        group: 10,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d8 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d8',
+        electronsPerShell: [2, 8, 16, 2],
+        oxidationStates: [-1, 1, 2, 3, 4],
+        electronNegativity: 1.91,
+        atomicRadius: 149,
+        discovery: 'Axel Fredrik Cronstedt',
+        discoveryBangla: 'অ্যাক্সেল ফ্রেডরিক ক্রনস্টেড্ট',
+        yearDiscovered: 1751,
+        density: 8.91,
+        meltingPoint: 1728,
+        boilingPoint: 3186,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Stainless steel, coins, batteries',
+        usesBangla: 'স্টেইনলেস স্টিল, কয়েন, ব্যাটারি'
+    },
+    {
+        atomicNumber: 29,
+        symbol: 'Cu',
+        name: 'Copper',
+        nameBangla: 'তামা',
+        atomicMass: '63.546',
+        group: 11,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d10 4s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s1 3d10',
+        electronsPerShell: [2, 8, 18, 1],
+        oxidationStates: [1, 2, 3, 4],
+        electronNegativity: 1.90,
+        atomicRadius: 145,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 8.96,
+        meltingPoint: 1357.77,
+        boilingPoint: 2835,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Electrical wiring, coins, plumbing',
+        usesBangla: 'বৈদ্যুতিক তার, কয়েন, প্লাম্বিং'
+    },
+    {
+        atomicNumber: 30,
+        symbol: 'Zn',
+        name: 'Zinc',
+        nameBangla: 'দস্তা',
+        atomicMass: '65.38',
+        group: 12,
+        period: 4,
+        category: 'transition-metal',
+        electronConfiguration: '[Ar] 3d10 4s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10',
+        electronsPerShell: [2, 8, 18, 2],
+        oxidationStates: [2],
+        electronNegativity: 1.65,
+        atomicRadius: 142,
+        discovery: 'Andreas Sigismund Marggraf',
+        discoveryBangla: 'আন্দ্রেয়াস সিগিসমুন্ড মার্গগ্রাফ',
+        yearDiscovered: 1746,
+        density: 7.14,
+        meltingPoint: 692.68,
+        boilingPoint: 1180,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Galvanizing, batteries, alloys',
+        usesBangla: 'গ্যালভানাইজিং, ব্যাটারি, সংকর ধাতু'
+    },
+    {
+        atomicNumber: 31,
+        symbol: 'Ga',
+        name: 'Gallium',
+        nameBangla: 'গ্যালিয়াম',
+        atomicMass: '69.723',
+        group: 13,
+        period: 4,
+        category: 'basic-metal',
+        electronConfiguration: '[Ar] 3d10 4s2 4p1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p1',
+        electronsPerShell: [2, 8, 18, 3],
+        oxidationStates: [1, 2, 3],
+        electronNegativity: 1.81,
+        atomicRadius: 136,
+        discovery: 'Paul-Émile Lecoq de Boisbaudran',
+        discoveryBangla: 'পল-এমিল লেকক ডি বয়সবড্রান',
+        yearDiscovered: 1875,
+        density: 5.91,
+        meltingPoint: 302.91,
+        boilingPoint: 2673,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Semiconductors, LEDs, thermometers',
+        usesBangla: 'সেমিকন্ডাক্টর, এলইডি, থার্মোমিটার'
+    },
+    {
+        atomicNumber: 32,
+        symbol: 'Ge',
+        name: 'Germanium',
+        nameBangla: 'জার্মেনিয়াম',
+        atomicMass: '72.630',
+        group: 14,
+        period: 4,
+        category: 'metalloid',
+        electronConfiguration: '[Ar] 3d10 4s2 4p2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p2',
+        electronsPerShell: [2, 8, 18, 4],
+        oxidationStates: [-4, 1, 2, 3, 4],
+        electronNegativity: 2.01,
+        atomicRadius: 125,
+        discovery: 'Clemens Winkler',
+        discoveryBangla: 'ক্লেমেন্স উইংকলার',
+        yearDiscovered: 1886,
+        density: 5.32,
+        meltingPoint: 1211.40,
+        boilingPoint: 3106,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Transistors, fiber optics, infrared optics',
+        usesBangla: 'ট্রানজিস্টর, ফাইবার অপটিক্স, ইনফ্রারেড অপটিক্স'
+    },
+    {
+        atomicNumber: 33,
+        symbol: 'As',
+        name: 'Arsenic',
+        nameBangla: 'আর্সেনিক',
+        atomicMass: '74.922',
+        group: 15,
+        period: 4,
+        category: 'metalloid',
+        electronConfiguration: '[Ar] 3d10 4s2 4p3',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p3',
+        electronsPerShell: [2, 8, 18, 5],
+        oxidationStates: [-3, 2, 3, 5],
+        electronNegativity: 2.18,
+        atomicRadius: 114,
+        discovery: 'Albertus Magnus',
+        discoveryBangla: 'আলবার্টাস ম্যাগনাস',
+        yearDiscovered: 1250,
+        density: 5.78,
+        meltingPoint: 1090,
+        boilingPoint: 887,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Pesticides, semiconductors, wood preservatives',
+        usesBangla: 'কীটনাশক, সেমিকন্ডাক্টর, কাঠ সংরক্ষক'
+    },
+    {
+        atomicNumber: 34,
+        symbol: 'Se',
+        name: 'Selenium',
+        nameBangla: 'সেলেনিয়াম',
+        atomicMass: '78.971',
+        group: 16,
+        period: 4,
+        category: 'nonmetal',
+        electronConfiguration: '[Ar] 3d10 4s2 4p4',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p4',
+        electronsPerShell: [2, 8, 18, 6],
+        oxidationStates: [-2, 2, 4, 6],
+        electronNegativity: 2.55,
+        atomicRadius: 103,
+        discovery: 'Jöns Jacob Berzelius',
+        discoveryBangla: 'ইয়ন্স ইয়াকব বার্জেলিয়াস',
+        yearDiscovered: 1817,
+        density: 4.81,
+        meltingPoint: 494,
+        boilingPoint: 958,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Photocopiers, solar cells, glass',
+        usesBangla: 'ফটোকপিয়ার, সৌর কোষ, কাঁচ'
+    },
+    {
+        atomicNumber: 35,
+        symbol: 'Br',
+        name: 'Bromine',
+        nameBangla: 'ব্রোমিন',
+        atomicMass: '79.904',
+        group: 17,
+        period: 4,
+        category: 'halogen',
+        electronConfiguration: '[Ar] 3d10 4s2 4p5',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p5',
+        electronsPerShell: [2, 8, 18, 7],
+        oxidationStates: [-1, 1, 3, 4, 5, 7],
+        electronNegativity: 2.96,
+        atomicRadius: 94,
+        discovery: 'Antoine Jérôme Balard',
+        discoveryBangla: 'অ্যানটোইন জেরোম ব্যালার্ড',
+        yearDiscovered: 1826,
+        density: 3.12,
+        meltingPoint: 265.8,
+        boilingPoint: 332.0,
+        phase: 'Liquid',
+        phaseBangla: 'তরল',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Flame retardants, pesticides, photography',
+        usesBangla: 'ফ্লেম রিটার্ডেন্ট, কীটনাশক, ফটোগ্রাফি'
+    },
+    {
+        atomicNumber: 36,
+        symbol: 'Kr',
+        name: 'Krypton',
+        nameBangla: 'ক্রিপ্টন',
+        atomicMass: '83.798',
+        group: 18,
+        period: 4,
+        category: 'noble-gas',
+        electronConfiguration: '[Ar] 3d10 4s2 4p6',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6',
+        electronsPerShell: [2, 8, 18, 8],
+        oxidationStates: [0, 2],
+        electronNegativity: 3.00,
+        atomicRadius: 88,
+        discovery: 'William Ramsay, Morris Travers',
+        discoveryBangla: 'উইলিয়াম রামজে, মরিস ট্রাভার্স',
+        yearDiscovered: 1898,
+        density: 3.75,
+        meltingPoint: 115.79,
+        boilingPoint: 119.93,
+        phase: 'Gas',
+        phaseBangla: 'গ্যাস',
+        bondingType: 'Atomic',
+        bondingTypeBangla: 'আণবিক',
+        uses: 'Lighting, lasers, insulation',
+        usesBangla: 'লাইটিং, লেজার, নিরোধক'
+    },
+    {
+        atomicNumber: 37,
+        symbol: 'Rb',
+        name: 'Rubidium',
+        nameBangla: 'রুবিডিয়াম',
+        atomicMass: '85.468',
+        group: 1,
+        period: 5,
+        category: 'alkali-metal',
+        electronConfiguration: '[Kr] 5s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1',
+        electronsPerShell: [2, 8, 18, 8, 1],
+        oxidationStates: [1],
+        electronNegativity: 0.82,
+        atomicRadius: 265,
+        discovery: 'Robert Bunsen, Gustav Kirchhoff',
+        discoveryBangla: 'রবার্ট বুনসেন, গুস্তাভ কিরশফ',
+        yearDiscovered: 1861,
+        density: 1.53,
+        meltingPoint: 312.46,
+        boilingPoint: 961,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Atomic clocks, photocells, medicine',
+        usesBangla: 'পরমাণু ঘড়ি, ফটোসেল, ওষুধ'
+    },
+    {
+        atomicNumber: 38,
+        symbol: 'Sr',
+        name: 'Strontium',
+        nameBangla: 'স্ট্রনশিয়াম',
+        atomicMass: '87.62',
+        group: 2,
+        period: 5,
+        category: 'alkaline-earth',
+        electronConfiguration: '[Kr] 5s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2',
+        electronsPerShell: [2, 8, 18, 8, 2],
+        oxidationStates: [2],
+        electronNegativity: 0.95,
+        atomicRadius: 219,
+        discovery: 'William Cruickshank',
+        discoveryBangla: 'উইলিয়াম ক্রুইকশ্যাঙ্ক',
+        yearDiscovered: 1790,
+        density: 2.64,
+        meltingPoint: 1050,
+        boilingPoint: 1655,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Fireworks, flares, medicine',
+        usesBangla: 'আতশবাজি, ফ্লেয়ার, ওষুধ'
+    },
+    {
+        atomicNumber: 39,
+        symbol: 'Y',
+        name: 'Yttrium',
+        nameBangla: 'ইট্রিয়াম',
+        atomicMass: '88.906',
+        group: 3,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d1 5s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d1',
+        electronsPerShell: [2, 8, 18, 9, 2],
+        oxidationStates: [1, 2, 3],
+        electronNegativity: 1.22,
+        atomicRadius: 212,
+        discovery: 'Johan Gadolin',
+        discoveryBangla: 'জোহান গ্যাডোলিন',
+        yearDiscovered: 1794,
+        density: 4.47,
+        meltingPoint: 1799,
+        boilingPoint: 3609,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'LEDs, lasers, superconductors',
+        usesBangla: 'এলইডি, লেজার, সুপারকন্ডাক্টর'
+    },
+    {
+        atomicNumber: 40,
+        symbol: 'Zr',
+        name: 'Zirconium',
+        nameBangla: 'জিরকোনিয়াম',
+        atomicMass: '91.224',
+        group: 4,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d2 5s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d2',
+        electronsPerShell: [2, 8, 18, 10, 2],
+        oxidationStates: [1, 2, 3, 4],
+        electronNegativity: 1.33,
+        atomicRadius: 206,
+        discovery: 'Martin Heinrich Klaproth',
+        discoveryBangla: 'মার্টিন হাইনরিখ ক্লাপ্রথ',
+        yearDiscovered: 1789,
+        density: 6.52,
+        meltingPoint: 2128,
+        boilingPoint: 4682,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Nuclear reactors, jewelry, ceramics',
+        usesBangla: 'পারমাণবিক চুল্লি, গহনা, সিরামিক'
+    },
+    {
+        atomicNumber: 41,
+        symbol: 'Nb',
+        name: 'Niobium',
+        nameBangla: 'নায়োবিয়াম',
+        atomicMass: '92.906',
+        group: 5,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d4 5s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d4',
+        electronsPerShell: [2, 8, 18, 12, 1],
+        oxidationStates: [-1, 2, 3, 4, 5],
+        electronNegativity: 1.6,
+        atomicRadius: 198,
+        discovery: 'Charles Hatchett',
+        discoveryBangla: 'চার্লস হ্যাচেট',
+        yearDiscovered: 1801,
+        density: 8.57,
+        meltingPoint: 2750,
+        boilingPoint: 5017,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Superconductors, jet engines, jewelry',
+        usesBangla: 'সুপারকন্ডাক্টর, জেট ইঞ্জিন, গহনা'
+    },
+    {
+        atomicNumber: 42,
+        symbol: 'Mo',
+        name: 'Molybdenum',
+        nameBangla: 'মলিবডেনাম',
+        atomicMass: '95.95',
+        group: 6,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d5 5s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d5',
+        electronsPerShell: [2, 8, 18, 13, 1],
+        oxidationStates: [-2, -1, 1, 2, 3, 4, 5, 6],
+        electronNegativity: 2.16,
+        atomicRadius: 190,
+        discovery: 'Carl Wilhelm Scheele',
+        discoveryBangla: 'কার্ল উইলহেল্ম শেলে',
+        yearDiscovered: 1778,
+        density: 10.28,
+        meltingPoint: 2896,
+        boilingPoint: 4912,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Steel alloys, lubricants, catalysts',
+        usesBangla: 'স্টিল সংকর ধাতু, লুব্রিকেন্ট, অনুঘটক'
+    },
+    {
+        atomicNumber: 43,
+        symbol: 'Tc',
+        name: 'Technetium',
+        nameBangla: 'টেকনেশিয়াম',
+        atomicMass: '98',
+        group: 7,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d5 5s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d5',
+        electronsPerShell: [2, 8, 18, 13, 2],
+        oxidationStates: [-3, -1, 1, 2, 3, 4, 5, 6, 7],
+        electronNegativity: 1.9,
+        atomicRadius: 183,
+        discovery: 'Carlo Perrier, Emilio Segrè',
+        discoveryBangla: 'কার্লো পেরিয়ার, এমিলিও সেগ্রে',
+        yearDiscovered: 1937,
+        density: 11,
+        meltingPoint: 2430,
+        boilingPoint: 4538,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Medical imaging, corrosion inhibitor',
+        usesBangla: 'চিকিৎসা ইমেজিং, ক্ষয় প্রতিরোধক'
+    },
+    {
+        atomicNumber: 44,
+        symbol: 'Ru',
+        name: 'Ruthenium',
+        nameBangla: 'রুথেনিয়াম',
+        atomicMass: '101.07',
+        group: 8,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d7 5s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d7',
+        electronsPerShell: [2, 8, 18, 15, 1],
+        oxidationStates: [-2, 1, 2, 3, 4, 5, 6, 7, 8],
+        electronNegativity: 2.2,
+        atomicRadius: 178,
+        discovery: 'Karl Ernst Claus',
+        discoveryBangla: 'কার্ল আর্নস্ট ক্লাউস',
+        yearDiscovered: 1844,
+        density: 12.45,
+        meltingPoint: 2607,
+        boilingPoint: 4423,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Electrical contacts, solar cells, catalysts',
+        usesBangla: 'বৈদ্যুতিক সংযোগ, সৌর কোষ, অনুঘটক'
+    },
+    {
+        atomicNumber: 45,
+        symbol: 'Rh',
+        name: 'Rhodium',
+        nameBangla: 'রোডিয়াম',
+        atomicMass: '102.91',
+        group: 9,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d8 5s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d8',
+        electronsPerShell: [2, 8, 18, 16, 1],
+        oxidationStates: [-1, 1, 2, 3, 4, 5, 6],
+        electronNegativity: 2.28,
+        atomicRadius: 173,
+        discovery: 'William Hyde Wollaston',
+        discoveryBangla: 'উইলিয়াম হাইড ওলাস্টন',
+        yearDiscovered: 1803,
+        density: 12.41,
+        meltingPoint: 2237,
+        boilingPoint: 3968,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Catalytic converters, jewelry, electrical contacts',
+        usesBangla: 'ক্যাটালাইটিক কনভার্টার, গহনা, বৈদ্যুতিক সংযোগ'
+    },
+    {
+        atomicNumber: 46,
+        symbol: 'Pd',
+        name: 'Palladium',
+        nameBangla: 'প্যালাডিয়াম',
+        atomicMass: '106.42',
+        group: 10,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d10',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 4d10',
+        electronsPerShell: [2, 8, 18, 18],
+        oxidationStates: [0, 2, 4],
+        electronNegativity: 2.20,
+        atomicRadius: 169,
+        discovery: 'William Hyde Wollaston',
+        discoveryBangla: 'উইলিয়াম হাইড ওলাস্টন',
+        yearDiscovered: 1803,
+        density: 12.02,
+        meltingPoint: 1828.05,
+        boilingPoint: 3236,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Catalytic converters, electronics, jewelry',
+        usesBangla: 'ক্যাটালাইটিক কনভার্টার, ইলেকট্রনিক্স, গহনা'
+    },
+    {
+        atomicNumber: 47,
+        symbol: 'Ag',
+        name: 'Silver',
+        nameBangla: 'রূপা',
+        atomicMass: '107.87',
+        group: 11,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d10 5s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s1 4d10',
+        electronsPerShell: [2, 8, 18, 18, 1],
+        oxidationStates: [1, 2, 3],
+        electronNegativity: 1.93,
+        atomicRadius: 165,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 10.49,
+        meltingPoint: 1234.93,
+        boilingPoint: 2435,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Jewelry, coins, photography, electronics',
+        usesBangla: 'গহনা, কয়েন, ফটোগ্রাফি, ইলেকট্রনিক্স'
+    },
+    {
+        atomicNumber: 48,
+        symbol: 'Cd',
+        name: 'Cadmium',
+        nameBangla: 'ক্যাডমিয়াম',
+        atomicMass: '112.41',
+        group: 12,
+        period: 5,
+        category: 'transition-metal',
+        electronConfiguration: '[Kr] 4d10 5s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10',
+        electronsPerShell: [2, 8, 18, 18, 2],
+        oxidationStates: [2],
+        electronNegativity: 1.69,
+        atomicRadius: 161,
+        discovery: 'Friedrich Stromeyer',
+        discoveryBangla: 'ফ্রিডরিশ স্ট্রোমেয়ার',
+        yearDiscovered: 1817,
+        density: 8.65,
+        meltingPoint: 594.22,
+        boilingPoint: 1040,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Batteries, pigments, plating',
+        usesBangla: 'ব্যাটারি, রঞ্জক, প্লেটিং'
+    },
+    {
+        atomicNumber: 49,
+        symbol: 'In',
+        name: 'Indium',
+        nameBangla: 'ইন্ডিয়াম',
+        atomicMass: '114.82',
+        group: 13,
+        period: 5,
+        category: 'basic-metal',
+        electronConfiguration: '[Kr] 4d10 5s2 5p1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p1',
+        electronsPerShell: [2, 8, 18, 18, 3],
+        oxidationStates: [1, 2, 3],
+        electronNegativity: 1.78,
+        atomicRadius: 156,
+        discovery: 'Ferdinand Reich, Hieronymous Richter',
+        discoveryBangla: 'ফার্দিনান্ড রিচ, হিরোনিমাস রিচটার',
+        yearDiscovered: 1863,
+        density: 7.31,
+        meltingPoint: 429.75,
+        boilingPoint: 2345,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Transistors, touch screens, solar cells',
+        usesBangla: 'ট্রানজিস্টর, টাচ স্ক্রিন, সৌর কোষ'
+    },
+    {
+        atomicNumber: 50,
+        symbol: 'Sn',
+        name: 'Tin',
+        nameBangla: 'টিন',
+        atomicMass: '118.71',
+        group: 14,
+        period: 5,
+        category: 'basic-metal',
+        electronConfiguration: '[Kr] 4d10 5s2 5p2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p2',
+        electronsPerShell: [2, 8, 18, 18, 4],
+        oxidationStates: [-4, 2, 4],
+        electronNegativity: 1.96,
+        atomicRadius: 145,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 7.31,
+        meltingPoint: 505.08,
+        boilingPoint: 2875,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Cans, solder, bronze',
+        usesBangla: 'ক্যান, সোল্ডার, ব্রোঞ্জ'
+    },
+    {
+        atomicNumber: 51,
+        symbol: 'Sb',
+        name: 'Antimony',
+        nameBangla: 'অ্যান্টিমনি',
+        atomicMass: '121.76',
+        group: 15,
+        period: 5,
+        category: 'metalloid',
+        electronConfiguration: '[Kr] 4d10 5s2 5p3',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p3',
+        electronsPerShell: [2, 8, 18, 18, 5],
+        oxidationStates: [-3, 3, 5],
+        electronNegativity: 2.05,
+        atomicRadius: 133,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 6.68,
+        meltingPoint: 903.78,
+        boilingPoint: 1860,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Flame retardants, batteries, alloys',
+        usesBangla: 'ফ্লেম রিটার্ডেন্ট, ব্যাটারি, সংকর ধাতু'
+    },
+    {
+        atomicNumber: 52,
+        symbol: 'Te',
+        name: 'Tellurium',
+        nameBangla: 'টেলুরিয়াম',
+        atomicMass: '127.60',
+        group: 16,
+        period: 5,
+        category: 'metalloid',
+        electronConfiguration: '[Kr] 4d10 5s2 5p4',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p4',
+        electronsPerShell: [2, 8, 18, 18, 6],
+        oxidationStates: [-2, 2, 4, 5, 6],
+        electronNegativity: 2.1,
+        atomicRadius: 123,
+        discovery: 'Franz-Joseph Müller von Reichenstein',
+        discoveryBangla: 'ফ্রান্জ-জোসেফ মুলার ভন রেইচেনস্টেইন',
+        yearDiscovered: 1782,
+        density: 6.24,
+        meltingPoint: 722.66,
+        boilingPoint: 1261,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Solar cells, thermoelectric devices, alloys',
+        usesBangla: 'সৌর কোষ, তাপবিদ্যুৎ যন্ত্র, সংকর ধাতু'
+    },
+    {
+        atomicNumber: 53,
+        symbol: 'I',
+        name: 'Iodine',
+        nameBangla: 'আয়োডিন',
+        atomicMass: '126.90',
+        group: 17,
+        period: 5,
+        category: 'halogen',
+        electronConfiguration: '[Kr] 4d10 5s2 5p5',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p5',
+        electronsPerShell: [2, 8, 18, 18, 7],
+        oxidationStates: [-1, 1, 3, 5, 7],
+        electronNegativity: 2.66,
+        atomicRadius: 115,
+        discovery: 'Bernard Courtois',
+        discoveryBangla: 'বার্নার্ড কুরটোয়া',
+        yearDiscovered: 1811,
+        density: 4.94,
+        meltingPoint: 386.85,
+        boilingPoint: 457.4,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Disinfectants, medicine, photography',
+        usesBangla: 'বিষাণুনাশক, ওষুধ, ফটোগ্রাফি'
+    },
+    {
+        atomicNumber: 54,
+        symbol: 'Xe',
+        name: 'Xenon',
+        nameBangla: 'জেনন',
+        atomicMass: '131.29',
+        group: 18,
+        period: 5,
+        category: 'noble-gas',
+        electronConfiguration: '[Kr] 4d10 5s2 5p6',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6',
+        electronsPerShell: [2, 8, 18, 18, 8],
+        oxidationStates: [0, 2, 4, 6, 8],
+        electronNegativity: 2.6,
+        atomicRadius: 108,
+        discovery: 'William Ramsay, Morris Travers',
+        discoveryBangla: 'উইলিয়াম রামজে, মরিস ট্রাভার্স',
+        yearDiscovered: 1898,
+        density: 5.90,
+        meltingPoint: 161.4,
+        boilingPoint: 165.1,
+        phase: 'Gas',
+        phaseBangla: 'গ্যাস',
+        bondingType: 'Atomic',
+        bondingTypeBangla: 'আণবিক',
+        uses: 'Lighting, anesthesia, space propulsion',
+        usesBangla: 'লাইটিং, অবশকারক, মহাকাশ প্রপালশন'
+    },
+    {
+        atomicNumber: 55,
+        symbol: 'Cs',
+        name: 'Caesium',
+        nameBangla: 'সিজিয়াম',
+        atomicMass: '132.91',
+        group: 1,
+        period: 6,
+        category: 'alkali-metal',
+        electronConfiguration: '[Xe] 6s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s1',
+        electronsPerShell: [2, 8, 18, 18, 8, 1],
+        oxidationStates: [1],
+        electronNegativity: 0.79,
+        atomicRadius: 298,
+        discovery: 'Robert Bunsen, Gustav Kirchhoff',
+        discoveryBangla: 'রবার্ট বুনসেন, গুস্তাভ কিরশফ',
+        yearDiscovered: 1860,
+        density: 1.93,
+        meltingPoint: 301.59,
+        boilingPoint: 944,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Atomic clocks, photoelectric cells, drilling fluids',
+        usesBangla: 'পরমাণু ঘড়ি, আলোকবৈদ্যুতিক কোষ, ড্রিলিং তরল'
+    },
+    {
+        atomicNumber: 56,
+        symbol: 'Ba',
+        name: 'Barium',
+        nameBangla: 'বেরিয়াম',
+        atomicMass: '137.33',
+        group: 2,
+        period: 6,
+        category: 'alkaline-earth',
+        electronConfiguration: '[Xe] 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2',
+        electronsPerShell: [2, 8, 18, 18, 8, 2],
+        oxidationStates: [2],
+        electronNegativity: 0.89,
+        atomicRadius: 253,
+        discovery: 'Carl Wilhelm Scheele',
+        discoveryBangla: 'কার্ল উইলহেল্ম শেলে',
+        yearDiscovered: 1772,
+        density: 3.51,
+        meltingPoint: 1000,
+        boilingPoint: 2170,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Medical imaging, fireworks, glass',
+        usesBangla: 'চিকিৎসা ইমেজিং, আতশবাজি, কাঁচ'
+    },
+            {
+                atomicNumber: 57,
+                symbol: 'La',
+                name: 'Lanthanum',
+                nameBangla: 'ল্যান্থানাম',
+                atomicMass: '138.91',
+                group: 3,
+                period: 6,
+                category: 'lanthanide',
+                electronConfiguration: '[Xe] 5d1 6s2',
+                electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 5d1',
+                electronsPerShell: [2, 8, 18, 18, 9, 2],
+                oxidationStates: [3],
+                electronNegativity: 1.10,
+                atomicRadius: 187,
+                discovery: 'Carl Gustaf Mosander',
+                discoveryBangla: 'কার্ল গুস্তাফ মোসান্ডার',
+                yearDiscovered: 1839,
+                density: 6.15,
+                meltingPoint: 1193,
+                boilingPoint: 3737,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Metallic',
+                bondingTypeBangla: 'ধাতব',
+                uses: 'Camera lenses, catalysts, lighting',
+                usesBangla: 'ক্যামেরা লেন্স, অনুঘটক, আলো'
+            },
+            {
+                atomicNumber: 58,
+                symbol: 'Ce',
+                name: 'Cerium',
+                nameBangla: 'সেরিয়াম',
+                atomicMass: '140.12',
+                group: 3,
+                period: 6,
+                category: 'lanthanide',
+                electronConfiguration: '[Xe] 4f1 5d1 6s2',
+                electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f1 5d1',
+                electronsPerShell: [2, 8, 18, 20, 8, 2],
+                oxidationStates: [3, 4],
+                electronNegativity: 1.12,
+                atomicRadius: 181,
+                discovery: 'Martin Heinrich Klaproth',
+                discoveryBangla: 'মার্টিন হাইনরিখ ক্লাপ্রথ',
+                yearDiscovered: 1803,
+                density: 6.77,
+                meltingPoint: 1068,
+                boilingPoint: 3716,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Metallic',
+                bondingTypeBangla: 'ধাতব',
+                uses: 'Glass polishing, catalysts, lighter flints',
+                usesBangla: 'গ্লাস পালিশ, অনুঘটক, লাইটার ফ্লিন্ট'
+            },
+            {
+        atomicNumber: 59,
+        symbol: 'Pr',
+        name: 'Praseodymium',
+        nameBangla: 'প্র্যাসিওডিমিয়াম',
+        atomicMass: '140.91',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f3 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f3',
+        electronsPerShell: [2, 8, 18, 21, 8, 2],
+        oxidationStates: [2, 3, 4],
+        electronNegativity: 1.13,
+        atomicRadius: 182,
+        discovery: 'Carl Auer von Welsbach',
+        discoveryBangla: 'কার্ল অউয়ার ভন ওয়েলসব্যাচ',
+        yearDiscovered: 1885,
+        density: 6.77,
+        meltingPoint: 1208,
+        boilingPoint: 3793,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Aircraft engines, magnets, glass coloring',
+        usesBangla: 'বিমান ইঞ্জিন, চুম্বক, কাঁচ রঙ করা'
+    },
+    {
+        atomicNumber: 60,
+        symbol: 'Nd',
+        name: 'Neodymium',
+        nameBangla: 'নিওডিমিয়াম',
+        atomicMass: '144.24',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f4 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f4',
+        electronsPerShell: [2, 8, 18, 22, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.14,
+        atomicRadius: 181,
+        discovery: 'Carl Auer von Welsbach',
+        discoveryBangla: 'কার্ল অউয়ার ভন ওয়েলসব্যাচ',
+        yearDiscovered: 1885,
+        density: 7.01,
+        meltingPoint: 1297,
+        boilingPoint: 3347,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Powerful magnets, lasers, glass coloring',
+        usesBangla: 'শক্তিশালী চুম্বক, লেজার, কাঁচ রঙ করা'
+    },
+    {
+        atomicNumber: 61,
+        symbol: 'Pm',
+        name: 'Promethium',
+        nameBangla: 'প্রমিথিয়াম',
+        atomicMass: '145',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f5 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f5',
+        electronsPerShell: [2, 8, 18, 23, 8, 2],
+        oxidationStates: [3],
+        electronNegativity: 1.13,
+        atomicRadius: 183,
+        discovery: 'Jacob A. Marinsky, Lawrence E. Glendenin, Charles D. Coryell',
+        discoveryBangla: 'জ্যাকব এ. মারিনস্কি, লরেন্স ই. গ্লেন্ডেনিন, চার্লস ডি. কোরিয়েল',
+        yearDiscovered: 1945,
+        density: 7.26,
+        meltingPoint: 1315,
+        boilingPoint: 3273,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Nuclear batteries, luminous paint, thickness gauges',
+        usesBangla: 'পারমাণবিক ব্যাটারি, প্রভাময় রঙ, বেধ পরিমাপক'
+    },
+    {
+        atomicNumber: 62,
+        symbol: 'Sm',
+        name: 'Samarium',
+        nameBangla: 'সামারিয়াম',
+        atomicMass: '150.36',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f6 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f6',
+        electronsPerShell: [2, 8, 18, 24, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.17,
+        atomicRadius: 180,
+        discovery: 'Paul-Émile Lecoq de Boisbaudran',
+        discoveryBangla: 'পল-এমিল লেকক ডি বয়সবড্রান',
+        yearDiscovered: 1879,
+        density: 7.52,
+        meltingPoint: 1345,
+        boilingPoint: 2067,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Magnets, nuclear reactors, cancer treatment',
+        usesBangla: 'চুম্বক, পারমাণবিক চুল্লি, ক্যান্সার চিকিৎসা'
+    },
+    {
+        atomicNumber: 63,
+        symbol: 'Eu',
+        name: 'Europium',
+        nameBangla: 'ইউরোপিয়াম',
+        atomicMass: '151.96',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f7 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f7',
+        electronsPerShell: [2, 8, 18, 25, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.2,
+        atomicRadius: 208,
+        discovery: 'Eugène-Anatole Demarçay',
+        discoveryBangla: 'ইউজিন-অ্যানাটোল ডেমারসে',
+        yearDiscovered: 1896,
+        density: 5.24,
+        meltingPoint: 1099,
+        boilingPoint: 1802,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Phosphors in TVs, fluorescent lamps, lasers',
+        usesBangla: 'টিভিতে ফসফর, ফ্লুরোসেন্ট বাতি, লেজার'
+    },
+    {
+        atomicNumber: 64,
+        symbol: 'Gd',
+        name: 'Gadolinium',
+        nameBangla: 'গ্যাডোলিনিয়াম',
+        atomicMass: '157.25',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f7 5d1 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f7 5d1',
+        electronsPerShell: [2, 8, 18, 25, 9, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.2,
+        atomicRadius: 233,
+        discovery: 'Jean Charles Galissard de Marignac',
+        discoveryBangla: 'জিন চার্লস গ্যালিসার্ড ডি মারিগন্যাক',
+        yearDiscovered: 1880,
+        density: 7.90,
+        meltingPoint: 1585,
+        boilingPoint: 3546,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'MRI contrast agent, magnets, nuclear reactors',
+        usesBangla: 'এমআরআই কনট্রাস্ট এজেন্ট, চুম্বক, পারমাণবিক চুল্লি'
+    },
+    {
+        atomicNumber: 65,
+        symbol: 'Tb',
+        name: 'Terbium',
+        nameBangla: 'টারবিয়াম',
+        atomicMass: '158.93',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f9 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f9',
+        electronsPerShell: [2, 8, 18, 27, 8, 2],
+        oxidationStates: [3, 4],
+        electronNegativity: 1.2,
+        atomicRadius: 225,
+        discovery: 'Carl Gustaf Mosander',
+        discoveryBangla: 'কার্ল গুস্তাফ মোসান্ডার',
+        yearDiscovered: 1843,
+        density: 8.23,
+        meltingPoint: 1629,
+        boilingPoint: 3503,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Green phosphors, lasers, fuel cells',
+        usesBangla: 'সবুজ ফসফর, লেজার, জ্বালানি কোষ'
+    },
+    {
+        atomicNumber: 66,
+        symbol: 'Dy',
+        name: 'Dysprosium',
+        nameBangla: 'ডিসপ্রোসিয়াম',
+        atomicMass: '162.50',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f10 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f10',
+        electronsPerShell: [2, 8, 18, 28, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.22,
+        atomicRadius: 228,
+        discovery: 'Paul-Émile Lecoq de Boisbaudran',
+        discoveryBangla: 'পল-এমিল লেকক ডি বয়সবড্রান',
+        yearDiscovered: 1886,
+        density: 8.55,
+        meltingPoint: 1680,
+        boilingPoint: 2840,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Lasers, magnets, nuclear reactors',
+        usesBangla: 'লেজার, চুম্বক, পারমাণবিক চুল্লি'
+    },
+    {
+        atomicNumber: 67,
+        symbol: 'Ho',
+        name: 'Holmium',
+        nameBangla: 'হলমিয়াম',
+        atomicMass: '164.93',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f11 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f11',
+        electronsPerShell: [2, 8, 18, 29, 8, 2],
+        oxidationStates: [3],
+        electronNegativity: 1.23,
+        atomicRadius: 226,
+        discovery: 'Per Teodor Cleve',
+        discoveryBangla: 'পের তেওডোর ক্লেভ',
+        yearDiscovered: 1878,
+        density: 8.80,
+        meltingPoint: 1734,
+        boilingPoint: 2993,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Magnets, lasers, nuclear control rods',
+        usesBangla: 'চুম্বক, লেজার, পারমাণবিক নিয়ন্ত্রণ রড'
+    },
+    {
+        atomicNumber: 68,
+        symbol: 'Er',
+        name: 'Erbium',
+        nameBangla: 'এরবিয়াম',
+        atomicMass: '167.26',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f12 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f12',
+        electronsPerShell: [2, 8, 18, 30, 8, 2],
+        oxidationStates: [3],
+        electronNegativity: 1.24,
+        atomicRadius: 226,
+        discovery: 'Carl Gustaf Mosander',
+        discoveryBangla: 'কার্ল গুস্তাফ মোসান্ডার',
+        yearDiscovered: 1843,
+        density: 9.07,
+        meltingPoint: 1802,
+        boilingPoint: 3141,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Fiber optics, lasers, pink glass coloring',
+        usesBangla: 'ফাইবার অপটিক্স, লেজার, গোলাপী কাঁচ রঙ করা'
+    },
+    {
+        atomicNumber: 69,
+        symbol: 'Tm',
+        name: 'Thulium',
+        nameBangla: 'থুলিয়াম',
+        atomicMass: '168.93',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f13 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f13',
+        electronsPerShell: [2, 8, 18, 31, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.25,
+        atomicRadius: 222,
+        discovery: 'Per Teodor Cleve',
+        discoveryBangla: 'পের তেওডোর ক্লেভ',
+        yearDiscovered: 1879,
+        density: 9.32,
+        meltingPoint: 1818,
+        boilingPoint: 2223,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Portable X-ray machines, lasers',
+        usesBangla: 'বহনযোগ্য এক্স-রে মেশিন, লেজার'
+    },
+    {
+        atomicNumber: 70,
+        symbol: 'Yb',
+        name: 'Ytterbium',
+        nameBangla: 'ইটারবিয়াম',
+        atomicMass: '173.04',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f14 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14',
+        electronsPerShell: [2, 8, 18, 32, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.1,
+        atomicRadius: 222,
+        discovery: 'Jean Charles Galissard de Marignac',
+        discoveryBangla: 'জিন চার্লস গ্যালিসার্ড ডি মারিগন্যাক',
+        yearDiscovered: 1878,
+        density: 6.90,
+        meltingPoint: 1097,
+        boilingPoint: 1469,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Lasers, stainless steel, atomic clocks',
+        usesBangla: 'লেজার, স্টেইনলেস স্টিল, পরমাণু ঘড়ি'
+    },
+    {
+        atomicNumber: 71,
+        symbol: 'Lu',
+        name: 'Lutetium',
+        nameBangla: 'লুটিশিয়াম',
+        atomicMass: '174.97',
+        group: 3,
+        period: 6,
+        category: 'lanthanide',
+        electronConfiguration: '[Xe] 4f14 5d1 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d1',
+        electronsPerShell: [2, 8, 18, 32, 9, 2],
+        oxidationStates: [3],
+        electronNegativity: 1.27,
+        atomicRadius: 217,
+        discovery: 'Georges Urbain, Carl Auer von Welsbach',
+        discoveryBangla: 'জর্জেস আরবেইন, কার্ল অউয়ার ভন ওয়েলসব্যাচ',
+        yearDiscovered: 1907,
+        density: 9.84,
+        meltingPoint: 1925,
+        boilingPoint: 3675,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'PET scan detectors, catalysts, LED bulbs',
+        usesBangla: 'পিইটি স্ক্যান ডিটেক্টর, অনুঘটক, এলইডি বাল্ব'
+    },
+    {
+        atomicNumber: 72,
+        symbol: 'Hf',
+        name: 'Hafnium',
+        nameBangla: 'হাফনিয়াম',
+        atomicMass: '178.49',
+        group: 4,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d2 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d2',
+        electronsPerShell: [2, 8, 18, 32, 10, 2],
+        oxidationStates: [2, 3, 4],
+        electronNegativity: 1.3,
+        atomicRadius: 208,
+        discovery: 'Dirk Coster, George de Hevesy',
+        discoveryBangla: 'ডির্ক কস্টার, জর্জ ডি হেভেসি',
+        yearDiscovered: 1923,
+        density: 13.31,
+        meltingPoint: 2506,
+        boilingPoint: 4876,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Nuclear reactors, computer chips, plasma cutting',
+        usesBangla: 'পারমাণবিক চুল্লি, কম্পিউটার চিপ, প্লাজমা কাটিং'
+    },
+    {
+        atomicNumber: 73,
+        symbol: 'Ta',
+        name: 'Tantalum',
+        nameBangla: 'ট্যানটালাম',
+        atomicMass: '180.95',
+        group: 5,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d3 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d3',
+        electronsPerShell: [2, 8, 18, 32, 11, 2],
+        oxidationStates: [-1, 2, 3, 4, 5],
+        electronNegativity: 1.5,
+        atomicRadius: 200,
+        discovery: 'Anders Gustaf Ekeberg',
+        discoveryBangla: 'আন্ডার্স গুস্তাফ একেবার্গ',
+        yearDiscovered: 1802,
+        density: 16.69,
+        meltingPoint: 3290,
+        boilingPoint: 5731,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Electronics, surgical implants, corrosion resistant equipment',
+        usesBangla: 'ইলেকট্রনিক্স, অস্ত্রোপচার ইমপ্লান্ট, ক্ষয়রোধী সরঞ্জাম'
+    },
+    {
+        atomicNumber: 74,
+        symbol: 'W',
+        name: 'Tungsten',
+        nameBangla: 'টাংস্টেন',
+        atomicMass: '183.84',
+        group: 6,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d4 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d4',
+        electronsPerShell: [2, 8, 18, 32, 12, 2],
+        oxidationStates: [-2, -1, 1, 2, 3, 4, 5, 6],
+        electronNegativity: 2.36,
+        atomicRadius: 193,
+        discovery: 'Juan José Elhuyar, Fausto Elhuyar',
+        discoveryBangla: 'জুয়ান হোসে এলহুয়ার, ফাউস্টো এলহুয়ার',
+        yearDiscovered: 1783,
+        density: 19.25,
+        meltingPoint: 3695,
+        boilingPoint: 5828,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Light bulb filaments, cutting tools, armor-piercing ammunition',
+        usesBangla: 'লাইট বাল্ব ফিলামেন্ট, কাটিং টুল, বর্ম ভেদকারী গোলাবারুদ'
+    },
+    {
+        atomicNumber: 75,
+        symbol: 'Re',
+        name: 'Rhenium',
+        nameBangla: 'রেনিয়াম',
+        atomicMass: '186.21',
+        group: 7,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d5 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d5',
+        electronsPerShell: [2, 8, 18, 32, 13, 2],
+        oxidationStates: [-3, -1, 1, 2, 3, 4, 5, 6, 7],
+        electronNegativity: 1.9,
+        atomicRadius: 188,
+        discovery: 'Masataka Ogawa',
+        discoveryBangla: 'মাসাতাকা ওগাওয়া',
+        yearDiscovered: 1908,
+        density: 21.02,
+        meltingPoint: 3459,
+        boilingPoint: 5869,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Jet engine parts, thermocouples, catalysts',
+        usesBangla: 'জেট ইঞ্জিনের অংশ, থার্মোকাপল, অনুঘটক'
+    },
+    {
+        atomicNumber: 76,
+        symbol: 'Os',
+        name: 'Osmium',
+        nameBangla: 'অস্মিয়াম',
+        atomicMass: '190.23',
+        group: 8,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d6 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d6',
+        electronsPerShell: [2, 8, 18, 32, 14, 2],
+        oxidationStates: [-2, 1, 2, 3, 4, 5, 6, 7, 8],
+        electronNegativity: 2.2,
+        atomicRadius: 185,
+        discovery: 'Smithson Tennant',
+        discoveryBangla: 'স্মিথসন টেন্যান্ট',
+        yearDiscovered: 1803,
+        density: 22.59,
+        meltingPoint: 3306,
+        boilingPoint: 5285,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Fountain pen tips, electrical contacts, instrument pivots',
+        usesBangla: 'ফাউন্টেন পেন টিপস, বৈদ্যুতিক সংযোগ, যন্ত্রের পিভট'
+    },
+    {
+        atomicNumber: 77,
+        symbol: 'Ir',
+        name: 'Iridium',
+        nameBangla: 'ইরিডিয়াম',
+        atomicMass: '192.22',
+        group: 9,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d7 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d7',
+        electronsPerShell: [2, 8, 18, 32, 15, 2],
+        oxidationStates: [-3, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        electronNegativity: 2.20,
+        atomicRadius: 180,
+        discovery: 'Smithson Tennant',
+        discoveryBangla: 'স্মিথসন টেন্যান্ট',
+        yearDiscovered: 1803,
+        density: 22.56,
+        meltingPoint: 2719,
+        boilingPoint: 4701,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Spark plugs, crucibles, electrical contacts',
+        usesBangla: 'স্পার্ক প্লাগ, ক্রুসিবল, বৈদ্যুতিক সংযোগ'
+    },
+    {
+        atomicNumber: 78,
+        symbol: 'Pt',
+        name: 'Platinum',
+        nameBangla: 'প্লাটিনাম',
+        atomicMass: '195.08',
+        group: 10,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d9 6s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s1 4f14 5d9',
+        electronsPerShell: [2, 8, 18, 32, 17, 1],
+        oxidationStates: [2, 4, 5, 6],
+        electronNegativity: 2.28,
+        atomicRadius: 177,
+        discovery: 'Antonio de Ulloa',
+        discoveryBangla: 'অ্যান্টোনিও ডে উলোয়া',
+        yearDiscovered: 1735,
+        density: 21.45,
+        meltingPoint: 2041.4,
+        boilingPoint: 4098,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Jewelry, catalytic converters, laboratory equipment',
+        usesBangla: 'গহনা, ক্যাটালাইটিক কনভার্টার, পরীক্ষাগার সরঞ্জাম'
+    },
+    {
+        atomicNumber: 79,
+        symbol: 'Au',
+        name: 'Gold',
+        nameBangla: 'সোনা',
+        atomicMass: '196.97',
+        group: 11,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d10 6s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s1 4f14 5d10',
+        electronsPerShell: [2, 8, 18, 32, 18, 1],
+        oxidationStates: [-1, 1, 2, 3, 5],
+        electronNegativity: 2.54,
+        atomicRadius: 174,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 19.30,
+        meltingPoint: 1337.33,
+        boilingPoint: 3129,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Jewelry, electronics, dentistry, currency',
+        usesBangla: 'গহনা, ইলেকট্রনিক্স, দন্তচিকিৎসা, মুদ্রা'
+    },
+    {
+        atomicNumber: 80,
+        symbol: 'Hg',
+        name: 'Mercury',
+        nameBangla: 'পারদ',
+        atomicMass: '200.59',
+        group: 12,
+        period: 6,
+        category: 'transition-metal',
+        electronConfiguration: '[Xe] 4f14 5d10 6s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10',
+        electronsPerShell: [2, 8, 18, 32, 18, 2],
+        oxidationStates: [1, 2],
+        electronNegativity: 2.00,
+        atomicRadius: 171,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 13.53,
+        meltingPoint: 234.32,
+        boilingPoint: 629.88,
+        phase: 'Liquid',
+        phaseBangla: 'তরল',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Thermometers, barometers, fluorescent lamps, dental amalgams',
+        usesBangla: 'থার্মোমিটার, ব্যারোমিটার, ফ্লুরোসেন্ট বাতি, দন্ত অ্যামালগাম'
+    },
+    {
+        atomicNumber: 81,
+        symbol: 'Tl',
+        name: 'Thallium',
+        nameBangla: 'থ্যালিয়াম',
+        atomicMass: '204.38',
+        group: 13,
+        period: 6,
+        category: 'basic-metal',
+        electronConfiguration: '[Xe] 4f14 5d10 6s2 6p1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p1',
+        electronsPerShell: [2, 8, 18, 32, 18, 3],
+        oxidationStates: [1, 3],
+        electronNegativity: 1.62,
+        atomicRadius: 190,
+        discovery: 'William Crookes',
+        discoveryBangla: 'উইলিয়াম ক্রুকস',
+        yearDiscovered: 1861,
+        density: 11.85,
+        meltingPoint: 577,
+        boilingPoint: 1746,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Rat poison, infrared detectors, low-melting glass',
+        usesBangla: 'ইঁদুর বিষ, ইনফ্রারেড ডিটেক্টর, নিম্ন-গলনাঙ্ক কাঁচ'
+    },
+    {
+        atomicNumber: 82,
+        symbol: 'Pb',
+        name: 'Lead',
+        nameBangla: 'সীসা',
+        atomicMass: '207.2',
+        group: 14,
+        period: 6,
+        category: 'basic-metal',
+        electronConfiguration: '[Xe] 4f14 5d10 6s2 6p2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p2',
+        electronsPerShell: [2, 8, 18, 32, 18, 4],
+        oxidationStates: [-4, 2, 4],
+        electronNegativity: 1.87,
+        atomicRadius: 180,
+        discovery: 'Ancient (known since prehistoric times)',
+        discoveryBangla: 'প্রাচীন (প্রাগৈতিহাসিক সময় থেকে পরিচিত)',
+        yearDiscovered: 'Ancient',
+        density: 11.34,
+        meltingPoint: 600.61,
+        boilingPoint: 2022,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Batteries, radiation shielding, plumbing',
+        usesBangla: 'ব্যাটারি, বিকিরণ ঢাল, প্লাম্বিং'
+    },
+    {
+        atomicNumber: 83,
+        symbol: 'Bi',
+        name: 'Bismuth',
+        nameBangla: 'বিসমাথ',
+        atomicMass: '208.98',
+        group: 15,
+        period: 6,
+        category: 'basic-metal',
+        electronConfiguration: '[Xe] 4f14 5d10 6s2 6p3',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p3',
+        electronsPerShell: [2, 8, 18, 32, 18, 5],
+        oxidationStates: [-3, 3, 5],
+        electronNegativity: 2.02,
+        atomicRadius: 160,
+        discovery: 'Claude François Geoffroy',
+        discoveryBangla: 'ক্লড ফ্রঁসোয়া জিওফ্রয়',
+        yearDiscovered: 1753,
+        density: 9.78,
+        meltingPoint: 544.7,
+        boilingPoint: 1837,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Cosmetics, pharmaceuticals, low-melting alloys',
+        usesBangla: 'প্রসাধনী, ফার্মাসিউটিক্যাল, নিম্ন-গলনাঙ্ক সংকর ধাতু'
+    },
+    {
+        atomicNumber: 84,
+        symbol: 'Po',
+        name: 'Polonium',
+        nameBangla: 'পোলোনিয়াম',
+        atomicMass: '209',
+        group: 16,
+        period: 6,
+        category: 'metalloid',
+        electronConfiguration: '[Xe] 4f14 5d10 6s2 6p4',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p4',
+        electronsPerShell: [2, 8, 18, 32, 18, 6],
+        oxidationStates: [-2, 2, 4, 6],
+        electronNegativity: 2.0,
+        atomicRadius: 167,
+        discovery: 'Marie Curie, Pierre Curie',
+        discoveryBangla: 'মেরি কুরি, পিয়েরে কুরি',
+        yearDiscovered: 1898,
+        density: 9.20,
+        meltingPoint: 527,
+        boilingPoint: 1235,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Static eliminators, heat sources, neutron sources',
+        usesBangla: 'স্ট্যাটিক নির্মূলকারী, তাপ উৎস, নিউট্রন উৎস'
+    },
+    {
+        atomicNumber: 85,
+        symbol: 'At',
+        name: 'Astatine',
+        nameBangla: 'অ্যাস্টাটিন',
+        atomicMass: '210',
+        group: 17,
+        period: 6,
+        category: 'halogen',
+        electronConfiguration: '[Xe] 4f14 5d10 6s2 6p5',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p5',
+        electronsPerShell: [2, 8, 18, 32, 18, 7],
+        oxidationStates: [-1, 1, 3, 5, 7],
+        electronNegativity: 2.2,
+        atomicRadius: 147,
+        discovery: 'Dale R. Corson, Kenneth Ross MacKenzie, Emilio Segrè',
+        discoveryBangla: 'ডেল আর. করসন, কেনেথ রস ম্যাককেনজি, এমিলিও সেগ্রে',
+        yearDiscovered: 1940,
+        density: 7,
+        meltingPoint: 575,
+        boilingPoint: 610,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Cancer treatment, tracer',
+        usesBangla: 'ক্যান্সার চিকিৎসা, ট্রেসার'
+    },
+    {
+        atomicNumber: 86,
+        symbol: 'Rn',
+        name: 'Radon',
+        nameBangla: 'রেডন',
+        atomicMass: '222',
+        group: 18,
+        period: 6,
+        category: 'noble-gas',
+        electronConfiguration: '[Xe] 4f14 5d10 6s2 6p6',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6',
+        electronsPerShell: [2, 8, 18, 32, 18, 8],
+        oxidationStates: [0, 2, 6],
+        electronNegativity: 2.2,
+        atomicRadius: 145,
+        discovery: 'Friedrich Ernst Dorn',
+        discoveryBangla: 'ফ্রিডরিশ আর্নস্ট ডর্ন',
+        yearDiscovered: 1900,
+        density: 9.73,
+        meltingPoint: 202,
+        boilingPoint: 211.5,
+        phase: 'Gas',
+        phaseBangla: 'গ্যাস',
+        bondingType: 'Atomic',
+        bondingTypeBangla: 'আণবিক',
+        uses: 'Cancer treatment, earthquake prediction',
+        usesBangla: 'ক্যান্সার চিকিৎসা, ভূমিকম্প পূর্বাভাস'
+    },
+    {
+        atomicNumber: 87,
+        symbol: 'Fr',
+        name: 'Francium',
+        nameBangla: 'ফ্রান্সিয়াম',
+        atomicMass: '223',
+        group: 1,
+        period: 7,
+        category: 'alkali-metal',
+        electronConfiguration: '[Rn] 7s1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s1',
+        electronsPerShell: [2, 8, 18, 32, 18, 8, 1],
+        oxidationStates: [1],
+        electronNegativity: 0.7,
+        atomicRadius: 348,
+        discovery: 'Marguerite Perey',
+        discoveryBangla: 'মার্গারিট পেরে',
+        yearDiscovered: 1939,
+        density: 1.87,
+        meltingPoint: 300,
+        boilingPoint: 950,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses due to extreme rarity',
+        usesBangla: 'গবেষণা, চরম বিরলতার কারণে কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 88,
+        symbol: 'Ra',
+        name: 'Radium',
+        nameBangla: 'রেডিয়াম',
+        atomicMass: '226',
+        group: 2,
+        period: 7,
+        category: 'alkaline-earth',
+        electronConfiguration: '[Rn] 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2',
+        electronsPerShell: [2, 8, 18, 32, 18, 8, 2],
+        oxidationStates: [2],
+        electronNegativity: 0.9,
+        atomicRadius: 283,
+        discovery: 'Marie Curie, Pierre Curie',
+        discoveryBangla: 'মেরি কুরি, পিয়েরে কুরি',
+        yearDiscovered: 1898,
+        density: 5.5,
+        meltingPoint: 973,
+        boilingPoint: 2010,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Cancer treatment, luminous paints',
+        usesBangla: 'ক্যান্সার চিকিৎসা, প্রভাময় রং'
+    },
+
+            {
+                atomicNumber: 89,
+                symbol: 'Ac',
+                name: 'Actinium',
+                nameBangla: 'অ্যাক্টিনিয়াম',
+                atomicMass: '227',
+                group: 3,
+                period: 7,
+                category: 'actinide',
+                electronConfiguration: '[Rn] 6d1 7s2',
+                electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 6d1',
+                electronsPerShell: [2, 8, 18, 32, 18, 9, 2],
+                oxidationStates: [3],
+                electronNegativity: 1.10,
+                atomicRadius: 195,
+                discovery: 'Friedrich Oskar Giesel',
+                discoveryBangla: 'ফ্রিডরিশ অস্কার গিসেল',
+                yearDiscovered: 1902,
+                density: 10.07,
+                meltingPoint: 1323,
+                boilingPoint: 3471,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Metallic',
+                bondingTypeBangla: 'ধাতব',
+                uses: 'Neutron source, medical treatments',
+                usesBangla: 'নিউট্রন উৎস, চিকিৎসা'
+            },
+            {
+                atomicNumber: 90,
+                symbol: 'Th',
+                name: 'Thorium',
+                nameBangla: 'থোরিয়াম',
+                atomicMass: '232.04',
+                group: 3,
+                period: 7,
+                category: 'actinide',
+                electronConfiguration: '[Rn] 6d2 7s2',
+                electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 6d2',
+                electronsPerShell: [2, 8, 18, 32, 18, 10, 2],
+                oxidationStates: [2, 3, 4],
+                electronNegativity: 1.30,
+                atomicRadius: 180,
+                discovery: 'Jöns Jakob Berzelius',
+                discoveryBangla: 'ইয়ন্স ইয়াকব বার্জেলিয়াস',
+                yearDiscovered: 1828,
+                density: 11.72,
+                meltingPoint: 2023,
+                boilingPoint: 5061,
+                phase: 'Solid',
+                phaseBangla: 'কঠিন',
+                bondingType: 'Metallic',
+                bondingTypeBangla: 'ধাতব',
+                uses: 'Nuclear fuel, gas mantles, alloys',
+                usesBangla: 'পারমাণবিক জ্বালানি, গ্যাস ম্যান্টল, সংকর ধাতু'
+            }, {
+        atomicNumber: 91,
+        symbol: 'Pa',
+        name: 'Protactinium',
+        nameBangla: 'প্রোটাক্টিনিয়াম',
+        atomicMass: '231.04',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f2 6d1 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f2 6d1',
+        electronsPerShell: [2, 8, 18, 32, 20, 9, 2],
+        oxidationStates: [3, 4, 5],
+        electronNegativity: 1.5,
+        atomicRadius: 180,
+        discovery: 'William Crookes',
+        discoveryBangla: 'উইলিয়াম ক্রুকস',
+        yearDiscovered: 1913,
+        density: 15.37,
+        meltingPoint: 1841,
+        boilingPoint: 4300,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no significant practical uses',
+        usesBangla: 'গবেষণা, কোন উল্লেখযোগ্য ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 92,
+        symbol: 'U',
+        name: 'Uranium',
+        nameBangla: 'ইউরেনিয়াম',
+        atomicMass: '238.03',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f3 6d1 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f3 6d1',
+        electronsPerShell: [2, 8, 18, 32, 21, 9, 2],
+        oxidationStates: [3, 4, 5, 6],
+        electronNegativity: 1.38,
+        atomicRadius: 175,
+        discovery: 'Martin Heinrich Klaproth',
+        discoveryBangla: 'মার্টিন হাইনরিখ ক্লাপ্রথ',
+        yearDiscovered: 1789,
+        density: 19.05,
+        meltingPoint: 1405.3,
+        boilingPoint: 4404,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Nuclear fuel, nuclear weapons, dating rocks',
+        usesBangla: 'পারমাণবিক জ্বালানি, পারমাণবিক অস্ত্র, শিলা নির্ধারণ'
+    },
+    {
+        atomicNumber: 93,
+        symbol: 'Np',
+        name: 'Neptunium',
+        nameBangla: 'নেপচুনিয়াম',
+        atomicMass: '237',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f4 6d1 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f4 6d1',
+        electronsPerShell: [2, 8, 18, 32, 22, 9, 2],
+        oxidationStates: [3, 4, 5, 6, 7],
+        electronNegativity: 1.36,
+        atomicRadius: 175,
+        discovery: 'Edwin McMillan, Philip Abelson',
+        discoveryBangla: 'এডউইন ম্যাকমিলান, ফিলিপ আবেলসন',
+        yearDiscovered: 1940,
+        density: 20.45,
+        meltingPoint: 917,
+        boilingPoint: 4273,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Neutron detection, research',
+        usesBangla: 'নিউট্রন সনাক্তকরণ, গবেষণা'
+    },
+    {
+        atomicNumber: 94,
+        symbol: 'Pu',
+        name: 'Plutonium',
+        nameBangla: 'প্লুটোনিয়াম',
+        atomicMass: '244',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f6 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f6',
+        electronsPerShell: [2, 8, 18, 32, 24, 8, 2],
+        oxidationStates: [3, 4, 5, 6, 7],
+        electronNegativity: 1.28,
+        atomicRadius: 175,
+        discovery: 'Glenn T. Seaborg, Edwin McMillan, Joseph W. Kennedy, Arthur Wahl',
+        discoveryBangla: 'গ্লেন টি. সিবোর্গ, এডউইন ম্যাকমিলান, জোসেফ ডব্লিউ কেনেডি, আর্থার ওয়াহল',
+        yearDiscovered: 1940,
+        density: 19.86,
+        meltingPoint: 912.5,
+        boilingPoint: 3505,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Nuclear weapons, nuclear reactors, pacemakers',
+        usesBangla: 'পারমাণবিক অস্ত্র, পারমাণবিক চুল্লি, পেসমেকার'
+    },
+    {
+        atomicNumber: 95,
+        symbol: 'Am',
+        name: 'Americium',
+        nameBangla: 'আমেরিসিয়াম',
+        atomicMass: '243',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f7 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f7',
+        electronsPerShell: [2, 8, 18, 32, 25, 8, 2],
+        oxidationStates: [2, 3, 4, 5, 6],
+        electronNegativity: 1.3,
+        atomicRadius: 175,
+        discovery: 'Glenn T. Seaborg, Ralph A. James, Leon O. Morgan, Albert Ghiorso',
+        discoveryBangla: 'গ্লেন টি. সিবোর্গ, রালফ এ. জেমস, লিওন ও. মরগান, আলবার্ট ঘিয়োরসো',
+        yearDiscovered: 1944,
+        density: 12,
+        meltingPoint: 1449,
+        boilingPoint: 2880,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Smoke detectors, neutron sources, research',
+        usesBangla: 'ধোঁয়া সনাক্তকারী, নিউট্রন উৎস, গবেষণা'
+    },
+    {
+        atomicNumber: 96,
+        symbol: 'Cm',
+        name: 'Curium',
+        nameBangla: 'কিউরিয়াম',
+        atomicMass: '247',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f7 6d1 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f7 6d1',
+        electronsPerShell: [2, 8, 18, 32, 25, 9, 2],
+        oxidationStates: [3, 4],
+        electronNegativity: 1.3,
+        atomicRadius: 174,
+        discovery: 'Glenn T. Seaborg, Ralph A. James, Albert Ghiorso',
+        discoveryBangla: 'গ্লেন টি. সিবোর্গ, রালফ এ. জেমস, আলবার্ট ঘিয়োরসো',
+        yearDiscovered: 1944,
+        density: 13.51,
+        meltingPoint: 1613,
+        boilingPoint: 3383,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Spacecraft power sources, research',
+        usesBangla: 'মহাকাশযানের শক্তি উৎস, গবেষণা'
+    },
+    {
+        atomicNumber: 97,
+        symbol: 'Bk',
+        name: 'Berkelium',
+        nameBangla: 'বার্কেলিয়াম',
+        atomicMass: '247',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f9 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f9',
+        electronsPerShell: [2, 8, 18, 32, 27, 8, 2],
+        oxidationStates: [3, 4],
+        electronNegativity: 1.3,
+        atomicRadius: 170,
+        discovery: 'Stanley G. Thompson, Albert Ghiorso, Glenn T. Seaborg',
+        discoveryBangla: 'স্ট্যানলি জি. থম্পসন, আলবার্ট ঘিয়োরসো, গ্লেন টি. সিবোর্গ',
+        yearDiscovered: 1949,
+        density: 14.78,
+        meltingPoint: 1259,
+        boilingPoint: 2900,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 98,
+        symbol: 'Cf',
+        name: 'Californium',
+        nameBangla: 'ক্যালিফোর্নিয়াম',
+        atomicMass: '251',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f10 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f10',
+        electronsPerShell: [2, 8, 18, 32, 28, 8, 2],
+        oxidationStates: [2, 3, 4],
+        electronNegativity: 1.3,
+        atomicRadius: 186,
+        discovery: 'Stanley G. Thompson, Albert Ghiorso, Kenneth Street Jr.',
+        discoveryBangla: 'স্ট্যানলি জি. থম্পসন, আলবার্ট ঘিয়োরসো, কেনেথ স্ট্রিট জুনিয়র',
+        yearDiscovered: 1950,
+        density: 15.1,
+        meltingPoint: 1173,
+        boilingPoint: 1743,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Neutron sources, cancer treatment, metal detectors',
+        usesBangla: 'নিউট্রন উৎস, ক্যান্সার চিকিৎসা, ধাতু সনাক্তকারী'
+    },
+    {
+        atomicNumber: 99,
+        symbol: 'Es',
+        name: 'Einsteinium',
+        nameBangla: 'আইনস্টাইনিয়াম',
+        atomicMass: '252',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f11 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f11',
+        electronsPerShell: [2, 8, 18, 32, 29, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.3,
+        atomicRadius: 186,
+        discovery: 'Albert Ghiorso et al.',
+        discoveryBangla: 'আলবার্ট ঘিয়োরসো প্রমুখ',
+        yearDiscovered: 1952,
+        density: 8.84,
+        meltingPoint: 1133,
+        boilingPoint: 1269,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 100,
+        symbol: 'Fm',
+        name: 'Fermium',
+        nameBangla: 'ফার্মিয়াম',
+        atomicMass: '257',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f12 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f12',
+        electronsPerShell: [2, 8, 18, 32, 30, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.3,
+        atomicRadius: 175,
+        discovery: 'Albert Ghiorso et al.',
+        discoveryBangla: 'আলবার্ট ঘিয়োরসো প্রমুখ',
+        yearDiscovered: 1952,
+        density: 9.7,
+        meltingPoint: 1800,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 101,
+        symbol: 'Md',
+        name: 'Mendelevium',
+        nameBangla: 'মেন্ডেলেভিয়াম',
+        atomicMass: '258',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f13 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f13',
+        electronsPerShell: [2, 8, 18, 32, 31, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.3,
+        atomicRadius: 174,
+        discovery: 'Albert Ghiorso, Glenn T. Seaborg et al.',
+        discoveryBangla: 'আলবার্ট ঘিয়োরসো, গ্লেন টি. সিবোর্গ প্রমুখ',
+        yearDiscovered: 1955,
+        density: 10.3,
+        meltingPoint: 1100,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 102,
+        symbol: 'No',
+        name: 'Nobelium',
+        nameBangla: 'নোবেলিয়াম',
+        atomicMass: '259',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f14 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14',
+        electronsPerShell: [2, 8, 18, 32, 32, 8, 2],
+        oxidationStates: [2, 3],
+        electronNegativity: 1.3,
+        atomicRadius: 174,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 1966,
+        density: 9.9,
+        meltingPoint: 1100,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 103,
+        symbol: 'Lr',
+        name: 'Lawrencium',
+        nameBangla: 'লরেনসিয়াম',
+        atomicMass: '262',
+        group: 3,
+        period: 7,
+        category: 'actinide',
+        electronConfiguration: '[Rn] 5f14 7s2 7p1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 7p1',
+        electronsPerShell: [2, 8, 18, 32, 32, 8, 3],
+        oxidationStates: [3],
+        electronNegativity: 1.3,
+        atomicRadius: 171,
+        discovery: 'Albert Ghiorso et al.',
+        discoveryBangla: 'আলবার্ট ঘিয়োরসো প্রমুখ',
+        yearDiscovered: 1961,
+        density: 14.4,
+        meltingPoint: 1900,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 104,
+        symbol: 'Rf',
+        name: 'Rutherfordium',
+        nameBangla: 'রাদারফোর্ডিয়াম',
+        atomicMass: '267',
+        group: 4,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d2 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d2',
+        electronsPerShell: [2, 8, 18, 32, 32, 10, 2],
+        oxidationStates: [4],
+        electronNegativity: null,
+        atomicRadius: 157,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 1964,
+        density: 23.2,
+        meltingPoint: 2400,
+        boilingPoint: 5800,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 105,
+        symbol: 'Db',
+        name: 'Dubnium',
+        nameBangla: 'ডুবনিয়াম',
+        atomicMass: '268',
+        group: 5,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d3 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d3',
+        electronsPerShell: [2, 8, 18, 32, 32, 11, 2],
+        oxidationStates: [5],
+        electronNegativity: null,
+        atomicRadius: 149,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 1967,
+        density: 29.3,
+        meltingPoint: 2900,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 106,
+        symbol: 'Sg',
+        name: 'Seaborgium',
+        nameBangla: 'সিবোর্গিয়াম',
+        atomicMass: '269',
+        group: 6,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d4 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d4',
+        electronsPerShell: [2, 8, 18, 32, 32, 12, 2],
+        oxidationStates: [6],
+        electronNegativity: null,
+        atomicRadius: 143,
+        discovery: 'Lawrence Berkeley National Laboratory',
+        discoveryBangla: 'লরেন্স বার্কলে ন্যাশনাল ল্যাবরেটরি',
+        yearDiscovered: 1974,
+        density: 35.0,
+        meltingPoint: 1527,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 107,
+        symbol: 'Bh',
+        name: 'Bohrium',
+        nameBangla: 'বোরিয়াম',
+        atomicMass: '270',
+        group: 7,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d5 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d5',
+        electronsPerShell: [2, 8, 18, 32, 32, 13, 2],
+        oxidationStates: [7],
+        electronNegativity: null,
+        atomicRadius: 141,
+        discovery: 'Gesellschaft für Schwerionenforschung',
+        discoveryBangla: 'গেসেলশ্যাফ্ট ফার শভেরিওনেনফোরশাং',
+        yearDiscovered: 1981,
+        density: 37.1,
+        meltingPoint: 1527,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 108,
+        symbol: 'Hs',
+        name: 'Hassium',
+        nameBangla: 'হ্যাসিয়াম',
+        atomicMass: '269',
+        group: 8,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d6 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d6',
+        electronsPerShell: [2, 8, 18, 32, 32, 14, 2],
+        oxidationStates: [8],
+        electronNegativity: null,
+        atomicRadius: 134,
+        discovery: 'Gesellschaft für Schwerionenforschung',
+        discoveryBangla: 'গেসেলশ্যাফ্ট ফার শভেরিওনেনফোরশাং',
+        yearDiscovered: 1984,
+        density: 40.7,
+        meltingPoint: 1527,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 109,
+        symbol: 'Mt',
+        name: 'Meitnerium',
+        nameBangla: 'মাইটনেরিয়াম',
+        atomicMass: '278',
+        group: 9,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d7 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d7',
+        electronsPerShell: [2, 8, 18, 32, 32, 15, 2],
+        oxidationStates: [9],
+        electronNegativity: null,
+        atomicRadius: 129,
+        discovery: 'Gesellschaft für Schwerionenforschung',
+        discoveryBangla: 'গেসেলশ্যাফ্ট ফার শভেরিওনেনফোরশাং',
+        yearDiscovered: 1982,
+        density: 37.4,
+        meltingPoint: 1527,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 110,
+        symbol: 'Ds',
+        name: 'Darmstadtium',
+        nameBangla: 'ডার্মস্টাটিয়াম',
+        atomicMass: '281',
+        group: 10,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d8 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d8',
+        electronsPerShell: [2, 8, 18, 32, 32, 16, 2],
+        oxidationStates: [8],
+        electronNegativity: null,
+        atomicRadius: 128,
+        discovery: 'Gesellschaft für Schwerionenforschung',
+        discoveryBangla: 'গেসেলশ্যাফ্ট ফার শভেরিওনেনফোরশাং',
+        yearDiscovered: 1994,
+        density: 34.8,
+        meltingPoint: 1527,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 111,
+        symbol: 'Rg',
+        name: 'Roentgenium',
+        nameBangla: 'রেন্টজেনিয়াম',
+        atomicMass: '282',
+        group: 11,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d9 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d9',
+        electronsPerShell: [2, 8, 18, 32, 32, 17, 2],
+        oxidationStates: [3, 5],
+        electronNegativity: null,
+        atomicRadius: 121,
+        discovery: 'Gesellschaft für Schwerionenforschung',
+        discoveryBangla: 'গেসেলশ্যাফ্ট ফার শভেরিওনেনফোরশাং',
+        yearDiscovered: 1994,
+        density: 28.7,
+        meltingPoint: 1527,
+        boilingPoint: 1527,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 112,
+        symbol: 'Cn',
+        name: 'Copernicium',
+        nameBangla: 'কোপার্নিসিয়াম',
+        atomicMass: '285',
+        group: 12,
+        period: 7,
+        category: 'transition-metal',
+        electronConfiguration: '[Rn] 5f14 6d10 7s2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10',
+        electronsPerShell: [2, 8, 18, 32, 32, 18, 2],
+        oxidationStates: [2, 4],
+        electronNegativity: null,
+        atomicRadius: 122,
+        discovery: 'Gesellschaft für Schwerionenforschung',
+        discoveryBangla: 'গেসেলশ্যাফ্ট ফার শভেরিওনেনফোরশাং',
+        yearDiscovered: 1996,
+        density: 23.7,
+        meltingPoint: 357,
+        boilingPoint: 1527,
+        phase: 'Liquid',
+        phaseBangla: 'তরল',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 113,
+        symbol: 'Nh',
+        name: 'Nihonium',
+        nameBangla: 'নিহোনিয়াম',
+        atomicMass: '286',
+        group: 13,
+        period: 7,
+        category: 'basic-metal',
+        electronConfiguration: '[Rn] 5f14 6d10 7s2 7p1',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p1',
+        electronsPerShell: [2, 8, 18, 32, 32, 18, 3],
+        oxidationStates: [1, 3, 5],
+        electronNegativity: null,
+        atomicRadius: 136,
+        discovery: 'RIKEN',
+        discoveryBangla: 'রিকেন',
+        yearDiscovered: 2004,
+        density: 16,
+        meltingPoint: 700,
+        boilingPoint: 1400,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 114,
+        symbol: 'Fl',
+        name: 'Flerovium',
+        nameBangla: 'ফ্লেরোভিয়াম',
+        atomicMass: '289',
+        group: 14,
+        period: 7,
+        category: 'basic-metal',
+        electronConfiguration: '[Rn] 5f14 6d10 7s2 7p2',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p2',
+        electronsPerShell: [2, 8, 18, 32, 32, 18, 4],
+        oxidationStates: [2, 4],
+        electronNegativity: null,
+        atomicRadius: 143,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 1999,
+        density: 14,
+        meltingPoint: 340,
+        boilingPoint: 420,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 115,
+        symbol: 'Mc',
+        name: 'Moscovium',
+        nameBangla: 'মস্কোভিয়াম',
+        atomicMass: '290',
+        group: 15,
+        period: 7,
+        category: 'basic-metal',
+        electronConfiguration: '[Rn] 5f14 6d10 7s2 7p3',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p3',
+        electronsPerShell: [2, 8, 18, 32, 32, 18, 5],
+        oxidationStates: [1, 3],
+        electronNegativity: null,
+        atomicRadius: 162,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 2003,
+        density: 13.5,
+        meltingPoint: 700,
+        boilingPoint: 1400,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 116,
+        symbol: 'Lv',
+        name: 'Livermorium',
+        nameBangla: 'লিভারমোরিয়াম',
+        atomicMass: '293',
+        group: 16,
+        period: 7,
+        category: 'basic-metal',
+        electronConfiguration: '[Rn] 5f14 6d10 7s2 7p4',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p4',
+        electronsPerShell: [2, 8, 18, 32, 32, 18, 6],
+        oxidationStates: [2, 4],
+        electronNegativity: null,
+        atomicRadius: 175,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 2000,
+        density: 12.9,
+        meltingPoint: 709,
+        boilingPoint: 1085,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Metallic',
+        bondingTypeBangla: 'ধাতব',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 117,
+        symbol: 'Ts',
+        name: 'Tennessine',
+        nameBangla: 'টেনেসিন',
+        atomicMass: '294',
+        group: 17,
+        period: 7,
+        category: 'halogen',
+        electronConfiguration: '[Rn] 5f14 6d10 7s2 7p5',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p5',
+        electronsPerShell: [2, 8, 18, 32, 32, 18, 7],
+        oxidationStates: [-1, 1, 3, 5],
+        electronNegativity: null,
+        atomicRadius: 165,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 2010,
+        density: 7.2,
+        meltingPoint: 723,
+        boilingPoint: 883,
+        phase: 'Solid',
+        phaseBangla: 'কঠিন',
+        bondingType: 'Covalent',
+        bondingTypeBangla: 'সমযোজী',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    },
+    {
+        atomicNumber: 118,
+        symbol: 'Og',
+        name: 'Oganesson',
+        nameBangla: 'ওগানেসন',
+        atomicMass: '294',
+        group: 18,
+        period: 7,
+        category: 'noble-gas',
+        electronConfiguration: '[Rn] 5f14 6d10 7s2 7p6',
+        electronConfigurationComplete: '1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10 6p6 7s2 5f14 6d10 7p6',
+        electronsPerShell: [2, 8, 18, 32, 32, 18, 8],
+        oxidationStates: [-1, 0, 1, 2, 4, 6],
+        electronNegativity: null,
+        atomicRadius: 152,
+        discovery: 'Joint Institute for Nuclear Research',
+        discoveryBangla: 'জয়েন্ট ইনস্টিটিউট ফর নিউক্লিয়ার রিসার্চ',
+        yearDiscovered: 2002,
+        density: 4.95,
+        meltingPoint: 325,
+        boilingPoint: 450,
+        phase: 'Gas',
+        phaseBangla: 'গ্যাস',
+        bondingType: 'Atomic',
+        bondingTypeBangla: 'আণবিক',
+        uses: 'Research, no practical uses',
+        usesBangla: 'গবেষণা, কোন ব্যবহারিক ব্যবহার নেই'
+    }
+        ];
+
+        // DOM Elements
+        const mainPage = document.getElementById('mainPage');
+        const elementPage = document.getElementById('elementPage');
+        const periodicTablePage = document.getElementById('periodicTablePage');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const tableBtn = document.getElementById('tableBtn');
+        const backFromElement = document.getElementById('backFromElement');
+        const backFromTable = document.getElementById('backFromTable');
+        const electronDiagram = document.getElementById('electronDiagram');
+        const elementInfoGrid = document.getElementById('elementInfoGrid');
+        const elementSymbolLarge = document.getElementById('elementSymbolLarge');
+        const elementName = document.getElementById('elementName');
+        const elementAtomicNumber = document.getElementById('elementAtomicNumber');
+        const elementCategory = document.getElementById('elementCategory');
+        const periodicTable = document.getElementById('periodicTable');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const zoomLevel = document.getElementById('zoomLevel');
+        const roundMassToggle = document.getElementById('roundMassToggle');
+        const completeConfigToggle = document.getElementById('completeConfigToggle');
+        const animationToggle = document.getElementById('animationToggle');
+        const animationIcon = document.getElementById('animationIcon');
+        const languageToggle = document.getElementById('languageToggle');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+
+        // Current state
+        let currentZoom = 1;
+        let currentElement = null;
+        let isBangla = false;
+        let roundAtomicMass = false;
+        let showCompleteConfig = false;
+        let animationsRunning = true;
+        let electronAnimations = [];
+
+        // Translation dictionary
+        const translations = {
+            en: {
+                siteTitle: "Chemistry Explorer",
+                siteSubtitle: "Interactive Periodic Table & Element Database",
+                searchPlaceholder: "Search element (name, symbol, or atomic number)...",
+                searchBtn: "Search",
+                tableBtn: "Periodic Table",
+                mainTitle: "Explore the Building Blocks of Matter",
+                mainDescription: "Discover detailed information about all 118 chemical elements, visualize electron configurations, and interact with a fully-featured periodic table. All data is sourced from reliable scientific databases.",
+                feature1Title: "Element Search",
+                feature1Desc: "Search for any element by name, symbol, or atomic number to view detailed information including electron configuration diagrams.",
+                feature2Title: "Interactive Table",
+                feature2Desc: "Explore the complete periodic table with zoom functionality and high-resolution download for printing or study.",
+                feature3Title: "Electron Visualizations",
+                feature3Desc: "See animated electron configurations with orbitals and electrons for each element to better understand atomic structure.",
+                backToSearch: "Back to Search",
+                backToMain: "Back to Main",
+                electronDiagramTitle: "Electron Configuration Diagram",
+                elementInfoTitle: "Element Information",
+                atomicNumberText: "Atomic Number:",
+                roundMassText: "Round Mass",
+                completeConfigText: "Complete Config",
+                animationText: "Pause",
+                legend1: "Alkali Metal",
+                legend2: "Alkaline Earth",
+                legend3: "Transition Metal",
+                legend4: "Basic Metal",
+                legend5: "Metalloid",
+                legend6: "Nonmetal",
+                legend7: "Halogen",
+                legend8: "Noble Gas",
+                legend9: "Lanthanide",
+                legend10: "Actinide",
+                footerText: "Chemistry Explorer © 2025 | All element data sourced from scientific databases | For educational purposes",
+                chemicalSymbol: "Chemical Symbol",
+                atomicMass: "Atomic Mass",
+                neutronNumber: "Neutron Number",
+                group: "Group",
+                period: "Period",
+                category: "Category",
+                electronConfiguration: "Electron Configuration",
+                phaseAtSTP: "Phase at STP",
+                density: "Density",
+                meltingPoint: "Melting Point",
+                boilingPoint: "Boiling Point",
+                electronegativity: "Electronegativity",
+                atomicRadius: "Atomic Radius",
+                discoverer: "Discoverer",
+                yearDiscovered: "Year Discovered",
+                bondingTypes: "Common Bonding Types",
+                commonUses: "Common Uses",
+                oxidationStates: "Oxidation States"
+            },
+            bn: {
+                siteTitle: "রসায়ন এক্সপ্লোরার",
+                siteSubtitle: "ইন্টারেক্টিভ পর্যায় সারণি ও মৌল ডাটাবেস",
+                searchPlaceholder: "মৌল অনুসন্ধান (নাম, চিহ্ন বা পারমাণবিক সংখ্যা)...",
+                searchBtn: "অনুসন্ধান",
+                tableBtn: "পর্যায় সারণি",
+                mainTitle: "বস্তুর বিল্ডিং ব্লকগুলি অন্বেষণ করুন",
+                mainDescription: "সমস্ত ১১৮টি রাসায়নিক মৌলের বিশদ তথ্য আবিষ্কার করুন, ইলেকট্রন কনফিগারেশন ভিজ্যুয়ালাইজ করুন এবং সম্পূর্ণ বৈশিষ্ট্যযুক্ত পর্যায় সারণির সাথে ইন্টারঅ্যাক্ট করুন। সমস্ত ডেটা নির্ভরযোগ্য বৈজ্ঞানিক ডাটাবেস থেকে সংগ্রহ করা হয়েছে।",
+                feature1Title: "মৌল অনুসন্ধান",
+                feature1Desc: "ইলেকট্রন কনফিগারেশন ডায়াগ্রাম সহ বিশদ তথ্য দেখতে নাম, প্রতীক বা পারমাণবিক সংখ্যা দ্বারা যে কোনও মৌল অনুসন্ধান করুন।",
+                feature2Title: "ইন্টারেক্টিভ টেবিল",
+                feature2Desc: "জুম কার্যকারিতা এবং মুদ্রণ বা অধ্যয়নের জন্য উচ্চ রেজোলিউশন ডাউনলোড সহ সম্পূর্ণ পর্যায় সারণি অন্বেষণ করুন।",
+                feature3Title: "ইলেকট্রন ভিজ্যুয়ালাইজেশন",
+                feature3Desc: "পারমাণবিক গঠন আরও ভালভাবে বুঝতে প্রতিটি মৌলের জন্য অরবিটাল এবং ইলেকট্রন সহ অ্যানিমেটেড ইলেকট্রন কনফিগারেশন দেখুন।",
+                backToSearch: "অনুসন্ধানে ফিরে যান",
+                backToMain: "প্রধান পৃষ্ঠায় ফিরে যান",
+                electronDiagramTitle: "ইলেকট্রন কনফিগারেশন চিত্র",
+                elementInfoTitle: "মৌল তথ্য",
+                atomicNumberText: "পারমাণবিক সংখ্যা:",
+                roundMassText: "পারমাণবিক ভর গোল করুন",
+                completeConfigText: "সম্পূর্ণ কনফিগারেশন",
+                animationText: "বিরতি",
+                legend1: "ক্ষার ধাতু",
+                legend2: "ক্ষারীয় মৃত্তিকা ধাতু",
+                legend3: "পরিবর্তনশীল ধাতু",
+                legend4: "মৌলিক ধাতু",
+                legend5: "ধাতুকল্প",
+                legend6: "অধাতু",
+                legend7: "হ্যালোজেন",
+                legend8: "নিষ্ক্রিয় গ্যাস",
+                legend9: "ল্যান্থানাইড",
+                legend10: "অ্যাক্টিনাইড",
+                footerText: "রসায়ন এক্সপ্লোরার © ২০২৫ | সমস্ত মৌল ডেটা বৈজ্ঞানিক ডাটাবেস থেকে সংগ্রহ করা হয়েছে | শিক্ষামূলক উদ্দেশ্যে",
+                chemicalSymbol: "রাসায়নিক চিহ্ন",
+                atomicMass: "পারমাণবিক ভর",
+                neutronNumber: "নিউট্রন সংখ্যা",
+                group: "গ্রুপ",
+                period: "পর্যায়",
+                category: "বিভাগ",
+                electronConfiguration: "ইলেকট্রন কনফিগারেশন",
+                phaseAtSTP: "STP-এ অবস্থা",
+                density: "ঘনত্ব",
+                meltingPoint: "গলনাঙ্ক",
+                boilingPoint: "স্ফুটনাঙ্ক",
+                electronegativity: "তড়িৎ ঋণাত্মকতা",
+                atomicRadius: "পারমাণবিক ব্যাসার্ধ",
+                discoverer: "আবিষ্কারক",
+                yearDiscovered: "আবিষ্কারের বছর",
+                bondingTypes: "সাধারণ বন্ধন প্রকার",
+                commonUses: "সাধারণ ব্যবহার",
+                oxidationStates: "জারণ অবস্থা"
+            }
+        };
+
+        // Event Listeners
+        searchBtn.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+        searchInput.addEventListener('input', showSearchSuggestions);
+        tableBtn.addEventListener('click', showPeriodicTable);
+        backFromElement.addEventListener('click', () => showPage(mainPage));
+        backFromTable.addEventListener('click', () => showPage(mainPage));
+        zoomInBtn.addEventListener('click', () => adjustZoom(0.1));
+        zoomOutBtn.addEventListener('click', () => adjustZoom(-0.1));
+        roundMassToggle.addEventListener('click', toggleRoundMass);
+        completeConfigToggle.addEventListener('click', toggleCompleteConfig);
+        animationToggle.addEventListener('click', toggleAnimation);
+        languageToggle.addEventListener('click', toggleLanguage);
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                searchSuggestions.style.display = 'none';
+            }
+        });
+
+        // Handle window resize for better mobile experience
+        window.addEventListener('resize', handleResize);
+
+        function handleResize() {
+            if (currentElement && elementPage.style.display === 'block') {
+                setTimeout(() => generateElectronDiagram(currentElement), 100);
+            }
+        }
+
+        // Page Navigation
+        function showPage(page) {
+            mainPage.style.display = 'none';
+            elementPage.style.display = 'none';
+            periodicTablePage.style.display = 'none';
+            page.style.display = page === mainPage ? 'flex' : 'block';
+            
+            searchSuggestions.style.display = 'none';
+        }
+
+        // Search Functionality with Suggestions
+        function showSearchSuggestions() {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) {
+                searchSuggestions.style.display = 'none';
+                return;
+            }
+            
+            const suggestions = elementsDatabase.filter(element => 
+                element.name.toLowerCase().includes(query) ||
+                element.symbol.toLowerCase().includes(query) ||
+                element.atomicNumber.toString().includes(query) ||
+                (isBangla && element.nameBangla && element.nameBangla.includes(query))
+            ).slice(0, 5);
+            
+            if (suggestions.length === 0) {
+                searchSuggestions.style.display = 'none';
+                return;
+            }
+            
+            searchSuggestions.innerHTML = '';
+            suggestions.forEach(element => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.className = 'suggestion-item';
+                suggestionItem.innerHTML = `
+                    <span class="suggestion-symbol">${element.symbol}</span>
+                    <span>${isBangla ? element.nameBangla : element.name} (${element.atomicNumber})</span>
+                `;
+                suggestionItem.addEventListener('click', () => {
+                    searchInput.value = isBangla ? element.nameBangla : element.name;
+                    searchSuggestions.style.display = 'none';
+                    handleSearch();
+                });
+                searchSuggestions.appendChild(suggestionItem);
+            });
+            
+            searchSuggestions.style.display = 'block';
+        }
+
+        function handleSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            if (!query) return;
+            
+            let element = null;
+            
+            if (!isNaN(query)) {
+                const atomicNumber = parseInt(query);
+                element = elementsDatabase.find(e => e.atomicNumber === atomicNumber);
+            }
+            
+            if (!element) {
+                element = elementsDatabase.find(e => e.symbol.toLowerCase() === query);
+            }
+            
+            if (!element) {
+                element = elementsDatabase.find(e => e.name.toLowerCase().includes(query));
+            }
+            
+            if (!element && isBangla) {
+                element = elementsDatabase.find(e => e.nameBangla && e.nameBangla.includes(query));
+            }
+            
+            if (element) {
+                currentElement = element;
+                displayElement(element);
+                showPage(elementPage);
+            } else {
+                alert(isBangla ? 'মৌল পাওয়া যায়নি। দয়া করে ভিন্ন অনুসন্ধান চেষ্টা করুন।' : 'Element not found. Please try a different search.');
+            }
+            
+            searchInput.value = '';
+            searchSuggestions.style.display = 'none';
+        }
+
+        // Display Element Details
+        function displayElement(element) {
+            elementSymbolLarge.textContent = element.symbol;
+            elementName.textContent = isBangla ? element.nameBangla : element.name;
+            elementAtomicNumber.textContent = element.atomicNumber;
+            
+            const categoryLabel = elementCategory.querySelector('.category-label');
+            categoryLabel.textContent = getCategoryDisplayName(element.category);
+            elementCategory.className = 'element-category';
+            elementCategory.classList.add(element.category);
+            
+            roundMassToggle.classList.toggle('active', roundAtomicMass);
+            completeConfigToggle.classList.toggle('active', showCompleteConfig);
+            animationToggle.classList.toggle('active', !animationsRunning);
+            animationIcon.className = animationsRunning ? 'fas fa-pause' : 'fas fa-play';
+            
+            generateElectronDiagram(element);
+            generateElementInfo(element);
+        }
+
+        // Generate Electron Diagram with proper circular orbits
+        function generateElectronDiagram(element) {
+            electronDiagram.innerHTML = '';
+            
+            // Clear any existing animations
+            electronAnimations.forEach(anim => anim.cancel());
+            electronAnimations = [];
+            
+            // Create nucleus
+            const nucleus = document.createElement('div');
+            nucleus.className = 'nucleus';
+            nucleus.textContent = element.symbol;
+            electronDiagram.appendChild(nucleus);
+            
+            // Parse electron configuration to get orbital information
+            const electronsPerShell = element.electronsPerShell;
+            const maxRadius = 200;
+            const minOrbitRadius = 60;
+            const diagramSize = 500; // Increased size for better visualization
+            
+            // Create orbits and electrons for each shell
+            electronsPerShell.forEach((electronCount, shellIndex) => {
+                const shellNumber = shellIndex + 1;
+                if (electronCount === 0) return;
+                
+                // Calculate radius for this shell - logarithmic scaling for larger atoms
+                let radius;
+                if (electronsPerShell.length <= 4) {
+                    radius = minOrbitRadius + (shellNumber * (maxRadius - minOrbitRadius) / Math.max(4, electronsPerShell.length));
+                } else {
+                    // For atoms with many electrons, use logarithmic scaling
+                    radius = minOrbitRadius + (Math.log(shellNumber + 1) * (maxRadius - minOrbitRadius) / Math.log(electronsPerShell.length + 1));
+                }
+                
+                // Create orbit circle
+                const orbit = document.createElement('div');
+                orbit.className = 'orbit';
+                orbit.style.width = `${radius * 2}px`;
+                orbit.style.height = `${radius * 2}px`;
+                electronDiagram.appendChild(orbit);
+                
+                // Create electrons for this shell with proper circular orbits
+                const electrons = createElectronsForShell(electronCount, radius, shellNumber);
+                electrons.forEach(electron => {
+                    electronDiagram.appendChild(electron);
+                });
+            });
+        }
+
+        // Create electrons for a shell with proper circular orbits
+        function createElectronsForShell(count, radius, shellNumber) {
+            const electrons = [];
+            const angleStep = (2 * Math.PI) / count;
+            
+            // Animation duration varies by shell (inner shells faster)
+            const duration = 3 + shellNumber * 2;
+            
+            for (let i = 0; i < count; i++) {
+                const electron = document.createElement('div');
+                electron.className = 'electron';
+                
+                // Calculate angle for this electron
+                const angle = i * angleStep;
+                
+                // Set initial position on the orbit
+                const x = radius * Math.cos(angle);
+                const y = radius * Math.sin(angle);
+                
+                // Position electron at the center initially
+                electron.style.left = '50%';
+                electron.style.top = '50%';
+                electron.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
+                
+                // Create animation for circular orbit
+                const keyframes = [];
+                const steps = 36; // Smooth circular motion
+                
+                for (let step = 0; step <= steps; step++) {
+                    const stepAngle = angle + (step * 2 * Math.PI / steps);
+                    const stepX = radius * Math.cos(stepAngle);
+                    const stepY = radius * Math.sin(stepAngle);
+                    
+                    keyframes.push({
+                        transform: `translate(-50%, -50%) translate(${stepX}px, ${stepY}px)`
+                    });
+                }
+                
+                const animation = electron.animate(keyframes, {
+                    duration: duration * 1000,
+                    iterations: Infinity,
+                    easing: 'linear'
+                });
+                
+                if (!animationsRunning) {
+                    animation.pause();
+                }
+                
+                electronAnimations.push(animation);
+                electrons.push(electron);
+            }
+            
+            return electrons;
+        }
+
+        // Generate Element Information Grid
+        function generateElementInfo(element) {
+            elementInfoGrid.innerHTML = '';
+            
+            let atomicMassValue = element.atomicMass;
+            if (roundAtomicMass) {
+                const massNum = parseFloat(element.atomicMass);
+                atomicMassValue = isNaN(massNum) ? element.atomicMass : Math.round(massNum).toString();
+            }
+            
+            const electronConfigValue = showCompleteConfig ? 
+                element.electronConfigurationComplete : 
+                element.electronConfiguration;
+            
+            const infoItems = [
+                { 
+                    label: isBangla ? translations.bn.chemicalSymbol : translations.en.chemicalSymbol, 
+                    value: element.symbol 
+                },
+                { 
+                    label: isBangla ? translations.bn.atomicNumber : translations.en.atomicNumber, 
+                    value: element.atomicNumber 
+                },
+                { 
+                    label: isBangla ? translations.bn.atomicMass : translations.en.atomicMass, 
+                    value: atomicMassValue + ' u' 
+                },
+                { 
+                    label: isBangla ? translations.bn.neutronNumber : translations.en.neutronNumber, 
+                    value: calculateNeutrons(element, roundAtomicMass) 
+                },
+                { 
+                    label: isBangla ? translations.bn.group : translations.en.group, 
+                    value: element.group || 'N/A' 
+                },
+                { 
+                    label: isBangla ? translations.bn.period : translations.en.period, 
+                    value: element.period 
+                },
+                { 
+                    label: isBangla ? translations.bn.category : translations.en.category, 
+                    value: getCategoryDisplayName(element.category) 
+                },
+                { 
+                    label: isBangla ? translations.bn.electronConfiguration : translations.en.electronConfiguration, 
+                    value: electronConfigValue 
+                },
+                { 
+                    label: isBangla ? translations.bn.phaseAtSTP : translations.en.phaseAtSTP, 
+                    value: isBangla ? element.phaseBangla : element.phase 
+                },
+                { 
+                    label: isBangla ? translations.bn.density : translations.en.density, 
+                    value: element.density + (element.phase === 'Gas' ? ' g/L' : ' g/cm³') 
+                },
+                { 
+                    label: isBangla ? translations.bn.meltingPoint : translations.en.meltingPoint, 
+                    value: element.meltingPoint + ' K' 
+                },
+                { 
+                    label: isBangla ? translations.bn.boilingPoint : translations.en.boilingPoint, 
+                    value: element.boilingPoint + ' K' 
+                },
+                { 
+                    label: isBangla ? translations.bn.electronegativity : translations.en.electronegativity, 
+                    value: element.electronNegativity || 'N/A' 
+                },
+                { 
+                    label: isBangla ? translations.bn.atomicRadius : translations.en.atomicRadius, 
+                    value: element.atomicRadius + ' pm' 
+                },
+                { 
+                    label: isBangla ? translations.bn.discoverer : translations.en.discoverer, 
+                    value: isBangla ? element.discoveryBangla : element.discovery 
+                },
+                { 
+                    label: isBangla ? translations.bn.yearDiscovered : translations.en.yearDiscovered, 
+                    value: element.yearDiscovered 
+                },
+                { 
+                    label: isBangla ? translations.bn.bondingTypes : translations.en.bondingTypes, 
+                    value: isBangla ? element.bondingTypeBangla : element.bondingType 
+                },
+                { 
+                    label: isBangla ? translations.bn.commonUses : translations.en.commonUses, 
+                    value: isBangla ? element.usesBangla : element.uses 
+                }
+            ];
+            
+            infoItems.forEach(item => {
+                const infoItem = document.createElement('div');
+                infoItem.className = 'info-item';
+                
+                infoItem.innerHTML = `
+                    <div class="label">${item.label}</div>
+                    <div class="value">${item.value}</div>
+                `;
+                
+                elementInfoGrid.appendChild(infoItem);
+            });
+            
+            const oxidationStatesItem = document.createElement('div');
+            oxidationStatesItem.className = 'info-item';
+            oxidationStatesItem.innerHTML = `
+                <div class="label">${isBangla ? translations.bn.oxidationStates : translations.en.oxidationStates}</div>
+                <div class="oxidation-states" id="oxidationStatesContainer"></div>
+            `;
+            elementInfoGrid.appendChild(oxidationStatesItem);
+            
+            const oxidationContainer = document.getElementById('oxidationStatesContainer');
+            if (oxidationContainer && element.oxidationStates) {
+                element.oxidationStates.forEach(state => {
+                    const stateElement = document.createElement('span');
+                    stateElement.className = 'oxidation-state';
+                    stateElement.textContent = state;
+                    oxidationContainer.appendChild(stateElement);
+                });
+            }
+        }
+
+        // Helper function to calculate neutron number
+        function calculateNeutrons(element, round = false) {
+            const atomicMass = parseFloat(element.atomicMass);
+            if (!atomicMass) return 'N/A';
+            
+            let neutrons = atomicMass - element.atomicNumber;
+            if (round) {
+                neutrons = Math.round(neutrons);
+            } else {
+                neutrons = neutrons.toFixed(1);
+            }
+            return neutrons;
+        }
+
+        // Helper function to get display name for category
+        function getCategoryDisplayName(category) {
+            const categoryMap = {
+                'alkali-metal': isBangla ? 'ক্ষার ধাতু' : 'Alkali Metal',
+                'alkaline-earth': isBangla ? 'ক্ষারীয় মৃত্তিকা ধাতু' : 'Alkaline Earth Metal',
+                'transition-metal': isBangla ? 'পরিবর্তনশীল ধাতু' : 'Transition Metal',
+                'basic-metal': isBangla ? 'মৌলিক ধাতু' : 'Basic Metal',
+                'metalloid': isBangla ? 'ধাতুকল্প' : 'Metalloid',
+                'nonmetal': isBangla ? 'অধাতু' : 'Nonmetal',
+                'halogen': isBangla ? 'হ্যালোজেন' : 'Halogen',
+                'noble-gas': isBangla ? 'নিষ্ক্রিয় গ্যাস' : 'Noble Gas',
+                'lanthanide': isBangla ? 'ল্যান্থানাইড' : 'Lanthanide',
+                'actinide': isBangla ? 'অ্যাক্টিনাইড' : 'Actinide'
+            };
+            return categoryMap[category] || category;
+        }
+
+        // Toggle round atomic mass
+        function toggleRoundMass() {
+            roundAtomicMass = !roundAtomicMass;
+            roundMassToggle.classList.toggle('active', roundAtomicMass);
+            
+            if (currentElement) {
+                generateElementInfo(currentElement);
+            }
+        }
+
+        // Toggle complete electron configuration
+        function toggleCompleteConfig() {
+            showCompleteConfig = !showCompleteConfig;
+            completeConfigToggle.classList.toggle('active', showCompleteConfig);
+            
+            if (currentElement) {
+                generateElementInfo(currentElement);
+            }
+        }
+
+        // Toggle animation
+        function toggleAnimation() {
+            animationsRunning = !animationsRunning;
+            animationToggle.classList.toggle('active', !animationsRunning);
+            animationIcon.className = animationsRunning ? 'fas fa-pause' : 'fas fa-play';
+            document.getElementById('animationText').textContent = 
+                isBangla ? 
+                (animationsRunning ? translations.bn.animationText : 'চালু') : 
+                (animationsRunning ? translations.en.animationText : 'Play');
+            
+            if (animationsRunning) {
+                electronAnimations.forEach(anim => anim.play());
+            } else {
+                electronAnimations.forEach(anim => anim.pause());
+            }
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            isBangla = !isBangla;
+            updateLanguageUI();
+            
+            searchInput.placeholder = isBangla ? translations.bn.searchPlaceholder : translations.en.searchPlaceholder;
+            
+            if (currentElement && elementPage.style.display === 'block') {
+                displayElement(currentElement);
+            }
+            
+            if (periodicTablePage.style.display === 'block') {
+                generatePeriodicTable();
+            }
+        }
+
+        // Update language UI
+        function updateLanguageUI() {
+            const lang = isBangla ? 'bn' : 'en';
+            const texts = translations[lang];
+            
+            document.getElementById('siteTitle').textContent = texts.siteTitle;
+            document.getElementById('siteSubtitle').textContent = texts.siteSubtitle;
+            document.getElementById('searchBtnText').textContent = texts.searchBtn;
+            document.getElementById('tableBtnText').textContent = texts.tableBtn;
+            document.getElementById('mainTitle').textContent = texts.mainTitle;
+            document.getElementById('mainDescription').textContent = texts.mainDescription;
+            document.getElementById('feature1Title').textContent = texts.feature1Title;
+            document.getElementById('feature1Desc').textContent = texts.feature1Desc;
+            document.getElementById('feature2Title').textContent = texts.feature2Title;
+            document.getElementById('feature2Desc').textContent = texts.feature2Desc;
+            document.getElementById('feature3Title').textContent = texts.feature3Title;
+            document.getElementById('feature3Desc').textContent = texts.feature3Desc;
+            document.getElementById('backToSearchText').textContent = texts.backToSearch;
+            document.getElementById('backToMainText').textContent = texts.backToMain;
+            document.getElementById('electronDiagramTitle').textContent = texts.electronDiagramTitle;
+            document.getElementById('elementInfoTitle').textContent = texts.elementInfoTitle;
+            document.getElementById('atomicNumberText').textContent = texts.atomicNumberText + ' ';
+            document.getElementById('roundMassText').textContent = texts.roundMassText;
+            document.getElementById('completeConfigText').textContent = texts.completeConfigText;
+            document.getElementById('animationText').textContent = texts.animationText;
+            document.getElementById('footerText').textContent = texts.footerText;
+            
+            for (let i = 1; i <= 10; i++) {
+                document.getElementById(`legend${i}`).textContent = texts[`legend${i}`];
+            }
+            
+            document.getElementById('languageFlag').textContent = isBangla ? '🇧🇩' : '🇺🇸';
+            document.getElementById('languageText').textContent = isBangla ? 'বাং' : 'EN';
+        }
+
+        // Periodic Table Generation with proper layout
+        function showPeriodicTable() {
+            generatePeriodicTable();
+            showPage(periodicTablePage);
+        }
+
+        function generatePeriodicTable() {
+            periodicTable.innerHTML = '';
+            
+            const totalCells = 18 * 10;
+            
+            for (let i = 0; i < totalCells; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'element-cell empty-cell';
+                cell.style.backgroundColor = 'transparent';
+                cell.style.border = '1px solid transparent';
+                periodicTable.appendChild(cell);
+            }
+            
+            elementsDatabase.forEach(element => {
+                let row = element.period - 1;
+                let col = element.group - 1;
+                
+                if (element.atomicNumber === 1) {
+                    row = 0;
+                    col = 0;
+                }
+                else if (element.atomicNumber === 2) {
+                    row = 0;
+                    col = 17;
+                }
+                else if (element.category === 'lanthanide') {
+                    row = 8;
+                    col = element.atomicNumber - 57 + 2;
+                }
+                else if (element.category === 'actinide') {
+                    row = 9;
+                    col = element.atomicNumber - 89 + 2;
+                }
+                else if (element.period === 6 && element.group > 2) {
+                    if (element.atomicNumber >= 57 && element.atomicNumber <= 71) {
+                        return;
+                    }
+                }
+                else if (element.period === 7 && element.group > 2) {
+                    if (element.atomicNumber >= 89 && element.atomicNumber <= 103) {
+                        return;
+                    }
+                }
+                
+                const position = row * 18 + col;
+                const cells = periodicTable.querySelectorAll('.element-cell');
+                
+                if (cells[position]) {
+                    cells[position].className = `element-cell ${element.category}`;
+                    
+                    let atomicMassValue = element.atomicMass;
+                    if (roundAtomicMass) {
+                        const massNum = parseFloat(element.atomicMass);
+                        atomicMassValue = isNaN(massNum) ? element.atomicMass : Math.round(massNum).toString();
+                    }
+                    
+                    cells[position].innerHTML = `
+                        <div class="atomic-number">${element.atomicNumber}</div>
+                        <div class="element-symbol">${element.symbol}</div>
+                        <div class="element-name">${isBangla ? element.nameBangla : element.name}</div>
+                        <div class="atomic-mass">${atomicMassValue}</div>
+                    `;
+                    
+                    cells[position].addEventListener('click', () => {
+                        currentElement = element;
+                        displayElement(element);
+                        showPage(elementPage);
+                    });
+                    
+                    cells[position].addEventListener('touchstart', function() {
+                        this.style.opacity = '0.8';
+                    });
+                    
+                    cells[position].addEventListener('touchend', function() {
+                        this.style.opacity = '1';
+                    });
+                }
+            });
+        }
+
+        // Zoom Controls
+        function adjustZoom(amount) {
+            currentZoom += amount;
+            currentZoom = Math.max(0.5, Math.min(2, currentZoom));
+            
+            periodicTable.style.transform = `scale(${currentZoom})`;
+            zoomLevel.textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        // Initialize the application
+        function init() {
+            showPage(mainPage);
+            generatePeriodicTable();
+            updateLanguageUI();
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                .table-container::-webkit-scrollbar {
+                    height: 8px;
+                    width: 8px;
+                }
+                
+                .table-container::-webkit-scrollbar-track {
+                    background: var(--secondary-dark);
+                    border-radius: 4px;
+                }
+                
+                .table-container::-webkit-scrollbar-thumb {
+                    background: var(--accent-purple);
+                    border-radius: 4px;
+                }
+                
+                @media (max-width: 768px) {
+                    .search-btn, .table-btn, .option-toggle, .back-btn {
+                        min-height: 44px;
+                    }
+                    
+                    .zoom-btn {
+                        min-width: 44px;
+                        min-height: 44px;
+                    }
+                }
+                
+                .element-cell, .search-btn, .table-btn, .option-toggle, .back-btn, .zoom-btn, .language-toggle {
+                    user-select: none;
+                    -webkit-user-select: none;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Start the application
+        init();
+    </script>
+</body>
+</html>
